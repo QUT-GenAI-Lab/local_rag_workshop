@@ -12,8 +12,8 @@ build==1.2.2.post1
 cachetools==5.5.0
 certifi==2024.8.30
 charset-normalizer==3.4.0
-chroma-hnswlib==0.7.6
-chromadb==0.5.23
+chroma-hnswlib
+chromadb
 click==8.1.7
 coloredlogs==15.0.1
 comm==0.2.2
@@ -133,14 +133,14 @@ starlette==0.41.3
 streamlit==1.41.0
 sympy==1.13.3
 tenacity==9.0.0
-tokenizers==0.21.0
+tokenizers
 toml==0.10.2
 tomli==2.2.1
 toolz==1.0.0
 tornado==6.4.2
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.47.0
+transformers
 typer==0.15.1
 typing_extensions==4.12.2
 tzdata==2024.2
