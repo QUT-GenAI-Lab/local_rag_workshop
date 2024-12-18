@@ -27,8 +27,9 @@ if prompt := st.chat_input("What is up?"):
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
-        generated_response = llama_chat_gen_streamed(st.session_state.messages)
-        response = st.write_stream(generated_response)
+        with st.spinner('Responding...'):
+            generated_response = llama_chat_gen_streamed(st.session_state.messages)
+            response = st.write_stream(generated_response)
         # making this a stream with write_stream isn't that simple weirdly
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
