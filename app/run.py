@@ -15,14 +15,14 @@ def get_resource_path(relative_path):
 def main():
     # Set up paths
     chromadb_path = get_resource_path('chromadbs')
-    models_path = get_resource_path('Models')
+    models_path = get_resource_path('models')
     
     # Set environment variables
     os.environ['CHROMADB_PATH'] = chromadb_path
     os.environ['MODELS_PATH'] = models_path
 
     # Determine the path to Streamlit_gui.py
-    streamlit_gui_path = get_resource_path('Streamlit_gui.py')
+    streamlit_gui_path = get_resource_path('streamlit_gui.py')
 
     # Modify sys.argv to run Streamlit with specific port
     sys.argv = [
