@@ -164,6 +164,10 @@ def make_db_from_txt(txt_dir: str, db_name: str, split_length: int = 150, ):
 
     return collection
 
+def list_all_collections():
+    collections_list = [x.name for x in client.list_collections()]
+    return collections_list
+
 ### TO DO:
 """
 TO DO:

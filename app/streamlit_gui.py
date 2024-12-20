@@ -3,19 +3,7 @@ import random
 import time
 from llama_engine import llama_chat_gen_streamed
 from RAG_backend import create_injection_prompt
-
-
-#TEMPORARY DEV VAR
-inject_template = """ 
-Respond to the following message:
-
-{USER_MESSAGE}.
-
-Use the following example messages to base your response off of. Try to copy both the style and the substance of these examples:
-
-{INJECT_TEXT}
-
-"""
+from chromadb_engine import list_all_collections
 
 # Initialize session state variables
 if "all_chat_histories" not in st.session_state:
@@ -39,20 +27,46 @@ if "use_rag" not in st.session_state:
 @st.dialog("Create a new chat history")
 def create_new_chat_hist():
     name = st.text_input("Put your chat name here!")
+    system_prompt = st.text_area("Put your system prompt here!")
+    injection_template = st.text_area("Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!")
+    selected_db = st.selectbox(
+        "select injection database",
+        options = list_all_collections(),
+        index = 0 #defaults to first example injection database
+    )
+    
     if st.button("Create"):
-        if name:
+        if all([name, system_prompt, injection_template, selected_db]):
             init_messages = [
-                {"role": "system", "content": "You are a helpful chatbot who will assist the end user as best as possible."},
-                {"role": "assistant", "content": "Hi there, how can I help you today?"}
+                {"role": "system", "content": system_prompt},
+                # {"role": "assistant", "content": "Hi there, how can I help you today?"}
             ]
             st.session_state.all_chat_histories[name] = {
                 'normal_hist': init_messages.copy(),
                 'RAG_hist': init_messages.copy(),
+                'system_prompt': system_prompt,
+                'injection_template': injection_template,
+                'selected_db': selected_db,
             }
             st.session_state.current_chat = name
             st.rerun()
+            
+        elif all(string in injection_template for string in ['{INJECT_TEXT}', '{USER_MESSAGE}']):
+            st.error("Injection template format invalid! Remember, put {INJECT_TEXT} where you'd like your RAG results to be injected, and {USER_MESSAGE} where you'd like your input message to be returned. Remember to include the curly brackets!")
         else:
-            st.error("Please enter a name for your chat.")
+            st.error("Missing chat name, system prompt, injection template, and/or injection database! Take a closer look at your selections.")
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Initial chat creation dialog
 if len(st.session_state.all_chat_histories) == 0:
@@ -66,7 +80,7 @@ with st.sidebar:
               on_click=lambda: setattr(st.session_state, 'use_rag', not st.session_state.use_rag), 
               type = ("primary" if st.session_state.use_rag else "secondary"),
               use_container_width=True)
-    with st.expander("Chat Management", expanded=True):
+    with st.expander("Chat Management", expanded=False):
         if st.button("Create New Chat"):
             create_new_chat_hist()
         
@@ -86,6 +100,11 @@ with st.sidebar:
                     del st.session_state.all_chat_histories[st.session_state.current_chat]
                     st.session_state.current_chat = list(st.session_state.all_chat_histories.keys())[0]
                     st.rerun()
+
+
+    with st.expander("RAG query options", expanded = False):
+        num_return = st.slider("Max number of items to inject", 1, 4, 3, 1)
+        max_dist = st.slider("Maximum distance of object from query", 0.5, 2.5, 2.0, 0.1)
 
 # Display function for chat histories
 def display_chat_hist(mode='normal_hist'):
@@ -117,12 +136,12 @@ if st.session_state.current_chat and not st.session_state.is_generating:
         # Create normal and RAG versions of the message
         normal_message = {"role": "user", "content": prompt}
         injection_prompt = create_injection_prompt( #### HAVE THIS DICTATED BY STUFF IN THE SIDEBAR!
-            'wint_db', 
+            chat_histories['selected_db'], 
             prompt, 
-            3, 
-            max_dist=None, 
-            inject_col=None, 
-            inject_template=inject_template
+            num_return = num_return, 
+            max_dist = max_dist, 
+            inject_col = None, #how do I do this?????? 
+            inject_template=chat_histories['injection_template']
         )
         rag_message = {"role": "user", "content": injection_prompt}
 
