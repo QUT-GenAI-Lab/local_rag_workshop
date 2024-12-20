@@ -1,9 +1,8 @@
 import streamlit as st
-import random
-import time
 from llama_engine import llama_chat_gen_streamed
 from RAG_backend import create_injection_prompt
-from chromadb_engine import list_all_collections
+from chromadb_engine import list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt
+import pandas as pd
 
 # Initialize session state variables
 if "all_chat_histories" not in st.session_state:
@@ -21,8 +20,48 @@ if "new_chat_name" not in st.session_state:
 if "use_rag" not in st.session_state:
     st.session_state.use_rag = True
 
+@st.dialog("Create a new vector database")
+def create_new_vectordb():
+    name = st.text_input("Put your database name here!")
+    uploaded_file = st.file_uploader("Upload your .docx, .csv, .pdf, or .txt files here!", accept_multiple_files=False)
+    if uploaded_file:
+        filename = uploaded_file.name
+        
+        # options for .csv
+        if '.csv' in filename[-4:]:
+            cols = list(pd.read_csv(uploaded_file).columns)
+            embedding_column = st.selectbox(
+                "Select column to generate embedding from",
+                options = cols,
+                index = 0
+            )
+            if st.button("create database from csv!"):
+                uploaded_file.seek(0) #reset pointer I guess?
+                make_db_from_csv(uploaded_file, embedding_column, name)
+                st.rerun()
 
+        # options for docx
+        elif '.doc' in filename[-5:]: #jankily allowing for detection of .doc and .docx
+            split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
+            if st.button("create database from word document!"):
+                make_db_from_docx(uploaded_file, name, split_length)
+                st.rerun()
 
+        #options for .txt
+        elif '.txt' in filename[-4:]:
+            split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
+            if st.button("create database from text document!"):
+                make_db_from_txt(uploaded_file, name, split_length)
+                st.rerun()
+
+        #options for pdf
+        elif '.pdf' in filename[-4:]:
+            split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
+            if st.button("create database from pdf document!"):
+                make_db_from_pdf(uploaded_file, name, split_length)
+                st.rerun()
+
+    
 
 @st.dialog("Create a new chat history")
 def create_new_chat_hist():
@@ -34,8 +73,8 @@ def create_new_chat_hist():
         options = list_all_collections(),
         index = 0 #defaults to first example injection database
     )
-    
-    if st.button("Create"):
+        
+    if st.button("Create", use_container_width=True):
         if all([name, system_prompt, injection_template, selected_db]):
             init_messages = [
                 {"role": "system", "content": system_prompt},
@@ -56,21 +95,10 @@ def create_new_chat_hist():
         else:
             st.error("Missing chat name, system prompt, injection template, and/or injection database! Take a closer look at your selections.")
 
-
-
-
-
-
-
-
-
-
-
-
-
 # Initial chat creation dialog
-if len(st.session_state.all_chat_histories) == 0:
-    create_new_chat_hist()
+# if len(st.session_state.all_chat_histories) == 0:
+#     create_new_chat_hist()
+# removed for now as it's causing issues with dialogue boxes and st.rerun()
 
 # Sidebar with chat management in expander
 with st.sidebar:
@@ -80,7 +108,7 @@ with st.sidebar:
               on_click=lambda: setattr(st.session_state, 'use_rag', not st.session_state.use_rag), 
               type = ("primary" if st.session_state.use_rag else "secondary"),
               use_container_width=True)
-    with st.expander("Chat Management", expanded=False):
+    with st.expander("Chat Management", expanded=True):
         if st.button("Create New Chat"):
             create_new_chat_hist()
         
@@ -105,6 +133,10 @@ with st.sidebar:
     with st.expander("RAG query options", expanded = False):
         num_return = st.slider("Max number of items to inject", 1, 4, 3, 1)
         max_dist = st.slider("Maximum distance of object from query", 0.5, 2.5, 2.0, 0.1)
+
+    if st.button("Create a new Vector Database"):
+        # st.rerun()
+        create_new_vectordb()
 
 # Display function for chat histories
 def display_chat_hist(mode='normal_hist'):
