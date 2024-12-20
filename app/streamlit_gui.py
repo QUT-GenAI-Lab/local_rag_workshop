@@ -2,8 +2,21 @@ import streamlit as st
 import random
 import time
 from llama_engine import llama_chat_gen_streamed
+from RAG_backend import create_injection_prompt
 
 st.title("llm chat demo")
+
+#TEMPORARY DEV VAR
+inject_template = """ 
+Respond to the following message:
+
+{USER_MESSAGE}.
+
+Use the following example messages to base your response off of. Try to copy both the style and the substance of these examples:
+
+{INJECT_TEXT}
+
+"""
 
 # Initialize session state variables
 if "all_chat_histories" not in st.session_state:
@@ -23,25 +36,29 @@ def create_new_chat_hist():
     name = st.text_input("Put your chat name here!")
     if st.button("Create"):
         if name:
-            st.session_state.all_chat_histories[name] = [
+            init_messages = [
                 {"role": "system", "content": "You are a helpful chatbot who will assist the end user as best as possible."},
-                {"role": "assistant", "content": "Hi there, how can I help you today?"} # make this more flexible??? allow for each new chat history to have a different input context?
+                {"role": "assistant", "content": "Hi there, how can I help you today?"}
             ]
+            st.session_state.all_chat_histories[name] = {
+                'normal_hist': init_messages.copy(),
+                'RAG_hist': init_messages.copy(),
+            }
             st.session_state.current_chat = name
             st.rerun()
         else:
             st.error("Please enter a name for your chat.")
 
-
 # Initial chat creation dialog
 if len(st.session_state.all_chat_histories) == 0:
     create_new_chat_hist()
+
 # Sidebar with chat management in expander
 with st.sidebar:
     with st.expander("Chat Management", expanded=True):
         if st.button("Create New Chat"):
             create_new_chat_hist()
-        # Chat selection dropdown (only show if there are chats)
+        
         if st.session_state.all_chat_histories:
             selected_chat = st.selectbox(
                 "Select Chat",
@@ -49,57 +66,78 @@ with st.sidebar:
                 index=list(st.session_state.all_chat_histories.keys()).index(st.session_state.current_chat) if st.session_state.current_chat else 0
             )
             
-            # Update current chat when selection changes
             if selected_chat != st.session_state.current_chat:
                 st.session_state.current_chat = selected_chat
                 st.rerun()
 
-            # Delete current chat button (prevent deleting the last chat)
             if len(st.session_state.all_chat_histories) > 1:
                 if st.button("Delete Current Chat"):
                     del st.session_state.all_chat_histories[st.session_state.current_chat]
-                    st.session_state.current_chat = list(st.session_state.all_chat_histories.keys())[0] #defaults to earliest chat available
+                    st.session_state.current_chat = list(st.session_state.all_chat_histories.keys())[0]
                     st.rerun()
 
-# Main chat interface
-if st.session_state.current_chat:
-    current_messages = st.session_state.all_chat_histories[st.session_state.current_chat]
+# Display function for chat histories
+def display_chat_hist(mode='normal_hist'):
+    if st.session_state.current_chat:
+        current_messages = st.session_state.all_chat_histories[st.session_state.current_chat][mode]
+        for message in current_messages:
+            if message["role"] != "system":
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
 
-    # Display chat messages from history on app rerun
-    for message in current_messages:
-        if message["role"] != "system":  # don't display system messages
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+# Main chat interface with tabs
+normal_tab, rag_tab = st.tabs(["Default", "RAG history"])
+with normal_tab:
+    display_chat_hist('normal_hist')
 
-    # Accept user input only if not currently generating a response
-    if not st.session_state.is_generating:
-        prompt = st.chat_input("What is up?")
-        if prompt:
-            # Add user message to chat history
-            current_messages.append({"role": "user", "content": prompt}) #modify this to allow for RAG
-            
-            # Display user message in chat message container
-            with st.chat_message("user"):
-                st.markdown(prompt)
-            
-            # Set generating flag to True
-            st.session_state.is_generating = True
-            st.rerun()
-    
-    # Handle response generation
-    if st.session_state.is_generating:
-        # Display assistant response in chat message container
-        with st.chat_message("assistant"):
-            with st.spinner('Responding...'):
-                generated_response = llama_chat_gen_streamed(current_messages)
-                response = st.write_stream(generated_response)
+with rag_tab:
+    display_chat_hist('RAG_hist')
+
+# Single chat input and response handling
+if st.session_state.current_chat and not st.session_state.is_generating:
+    prompt = st.chat_input("What is up?")
+    if prompt:
+        # Get both histories
+        chat_histories = st.session_state.all_chat_histories[st.session_state.current_chat]
         
-        # Add assistant response to chat history
-        current_messages.append({"role": "assistant", "content": response})
+        # Create normal and RAG versions of the message
+        normal_message = {"role": "user", "content": prompt}
+        injection_prompt = create_injection_prompt( #### HAVE THIS DICTATED BY STUFF IN THE SIDEBAR!
+            'wint_db', 
+            prompt, 
+            3, 
+            max_dist=None, 
+            inject_col=None, 
+            inject_template=inject_template
+        )
+        rag_message = {"role": "user", "content": injection_prompt}
         
-        # Update the chat history in session state
-        st.session_state.all_chat_histories[st.session_state.current_chat] = current_messages
+        # Add messages to respective histories
+        chat_histories['normal_hist'].append(normal_message)
+        chat_histories['RAG_hist'].append(rag_message)
         
-        # Reset generating flag
-        st.session_state.is_generating = False
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        st.session_state.is_generating = True
         st.rerun()
+
+if st.session_state.current_chat and st.session_state.is_generating:
+    chat_histories = st.session_state.all_chat_histories[st.session_state.current_chat]
+    
+    # Generate response using RAG-enhanced prompt
+    with st.chat_message("assistant"):
+        with st.spinner('Responding...'):
+            # Use RAG history for generation
+            #NOTE - this could blow out memory quite quickly??? Be sure to change context length et cetera.
+            generated_response = llama_chat_gen_streamed(chat_histories['RAG_hist']) 
+            response = st.write_stream(generated_response)
+    
+    # Add response to both histories
+    assistant_message = {"role": "assistant", "content": response}
+    chat_histories['normal_hist'].append(assistant_message)
+    chat_histories['RAG_hist'].append(assistant_message)
+    
+    st.session_state.is_generating = False
+    st.rerun()
