@@ -63,7 +63,7 @@ def make_db_from_pdf(pdf_dir, db_name: str, split_length: int = 128, ):
         pagetexts.append(text)
 
     for pagetext in pagetexts:
-        textchunks = split_texts(pagetext, split_length)
+        text_chunks = split_texts(pagetext, split_length)
         total_splits.extend(text_chunks)
 
     #get num of ids for chromadb creation
@@ -154,7 +154,7 @@ def make_db_from_txt(txt, db_name: str, split_length: int = 128, ):
     # with open(txt_dir, 'r') as f:
     #     text = f.read()
 
-    text = txt
+    text = str(txt.read())
     
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
