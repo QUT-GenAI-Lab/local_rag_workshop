@@ -62,33 +62,45 @@ def create_new_vectordb():
                 index = 0
             )
             if st.button("create database from csv!"):
-                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
-                    uploaded_file.seek(0) #reset pointer I guess?
-                    make_db_from_csv(uploaded_file, embedding_column, name)
-                st.rerun()
+                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                    st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                else:
+                    with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                        uploaded_file.seek(0) #reset pointer I guess?
+                        make_db_from_csv(uploaded_file, embedding_column, name)
+                    st.rerun()
 
         # options for docx
         elif '.doc' in filename[-5:]: #jankily allowing for detection of .doc and .docx
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from word document!"):
-                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
-                    make_db_from_docx(uploaded_file, name, split_length)
-                st.rerun()
+                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                    st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                else:
+                    with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                        make_db_from_docx(uploaded_file, name, split_length)
+                    st.rerun()
 
         #options for .txt
         elif '.txt' in filename[-4:]:
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from text document!"):
-                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
-                    make_db_from_txt(uploaded_file, name, split_length)
-                st.rerun()
+                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                    st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                else:
+                    with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                        make_db_from_txt(uploaded_file, name, split_length)
+                    st.rerun()
 
         #options for pdf
         elif '.pdf' in filename[-4:]:
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from pdf document!"):
-                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
-                    make_db_from_pdf(uploaded_file, name, split_length)
+                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                    st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                else:
+                    with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                        make_db_from_pdf(uploaded_file, name, split_length)
                 st.rerun()
 
     
@@ -121,7 +133,8 @@ def create_new_chat_hist():
             # save chat history now:
             save_chat_hist(name)
             st.rerun()
-            
+        elif name.contains("^[a-zA-Z0-9_]*$", regex = True):
+            st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
         elif all(string in injection_template for string in ['{INJECT_TEXT}', '{USER_MESSAGE}']):
             st.error("Injection template format invalid! Remember, put {INJECT_TEXT} where you'd like your RAG results to be injected, and {USER_MESSAGE} where you'd like your input message to be returned. Remember to include the curly brackets!")
         else:
