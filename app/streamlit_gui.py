@@ -7,6 +7,7 @@ with st.spinner("loading packages..."):
     import pandas as pd
     import pickle
     import os
+    import re
 
 def load_chat_histories():
     chathist_list = [file for file in os.listdir('chats') if '.pickle' in file]
@@ -62,7 +63,7 @@ def create_new_vectordb():
                 index = 0
             )
             if st.button("create database from csv!"):
-                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                if not re.match('^[a-zA-Z0-9_-]*$', name):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
 
                 elif name in list_all_collections():
@@ -79,7 +80,7 @@ def create_new_vectordb():
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from word document!"):
                 
-                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                if not re.match('^[a-zA-Z0-9_-]*$', name):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
                     
                 elif name in list_all_collections():
@@ -93,7 +94,7 @@ def create_new_vectordb():
         elif '.txt' in filename[-4:]:
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from text document!"):
-                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                if not re.match('^[a-zA-Z0-9_-]*$', name):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
                     
                 elif name in list_all_collections():
@@ -108,7 +109,7 @@ def create_new_vectordb():
         elif '.pdf' in filename[-4:]:
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from pdf document!"):
-                if name.contains("^[a-zA-Z0-9_]*$", regex = True):
+                if not re.match('^[a-zA-Z0-9_-]*$', name):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
                     
                 elif name in list_all_collections():
@@ -133,30 +134,33 @@ def create_new_chat_hist():
     )
         
     if st.button("Create", use_container_width=True):
-        if all([name, system_prompt, injection_template, selected_db]):
-            init_messages = [
-                {"role": "system", "content": system_prompt},
-                # {"role": "assistant", "content": "Hi there, how can I help you today?"}
-            ]
-            st.session_state.all_chat_histories[name] = {
-                'normal_hist': init_messages.copy(),
-                'RAG_hist': init_messages.copy(),
-                'system_prompt': system_prompt,
-                'injection_template': injection_template,
-                'selected_db': selected_db,
-            }
-            st.session_state.current_chat = name
-            # save chat history now:
-            save_chat_hist(name)
-            st.rerun()
-        elif name.contains("^[a-zA-Z0-9_]*$", regex = True):
+        #error checking
+        if not re.match('^[a-zA-Z0-9_-]*$', name):
             st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
         elif name in list(st.session_state.all_chat_histories.keys()):
             st.error("Chat history with that name already exists! Choose a different chat name.")
-        elif all(string in injection_template for string in ['{INJECT_TEXT}', '{USER_MESSAGE}']):
+        elif '{INJECT_TEXT}' not in injection_template or '{USER_MESSAGE}' not in injection_template:
             st.error("Injection template format invalid! Remember, put {INJECT_TEXT} where you'd like your RAG results to be injected, and {USER_MESSAGE} where you'd like your input message to be returned. Remember to include the curly brackets!")
         else:
-            st.error("Missing chat name, system prompt, injection template, and/or injection database! Take a closer look at your selections.")
+            if all([name, system_prompt, injection_template, selected_db]):
+                init_messages = [
+                    {"role": "system", "content": system_prompt},
+                    # {"role": "assistant", "content": "Hi there, how can I help you today?"}
+                ]
+                st.session_state.all_chat_histories[name] = {
+                    'normal_hist': init_messages.copy(),
+                    'RAG_hist': init_messages.copy(),
+                    'system_prompt': system_prompt,
+                    'injection_template': injection_template,
+                    'selected_db': selected_db,
+                }
+                st.session_state.current_chat = name
+                # save chat history now:
+                save_chat_hist(name)
+                st.rerun()
+                
+            else: #catchall error (so janky - I'm so sorry)
+                st.error("Missing chat name, system prompt, injection template, and/or injection database! Take a closer look at your selections.")
 
 # Initial chat creation dialog
 # if len(st.session_state.all_chat_histories) == 0:
