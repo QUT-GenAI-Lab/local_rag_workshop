@@ -39,7 +39,7 @@ def switch_db(db_name: str):
     collection = client.get_collection(name=db_name)
     return collection
 
-def make_db_from_pdf(pdf_dir: str, db_name: str, split_length: int = 128, ):
+def make_db_from_pdf(pdf_dir, db_name: str, split_length: int = 128, ):
     """
     function which creates a db from pdf.
 
@@ -60,10 +60,10 @@ def make_db_from_pdf(pdf_dir: str, db_name: str, split_length: int = 128, ):
     for page in reader.pages:
         text = page.extract_text()
         text = text.replace('\n', ' ') #clean text of new lines
-        pagetexts.append(text, split_length)
+        pagetexts.append(text)
 
     for pagetext in pagetexts:
-        textchunks = split_texts(pagetexts, split_length)
+        text_chunks = split_texts(pagetext, split_length)
         total_splits.extend(text_chunks)
 
     #get num of ids for chromadb creation
@@ -79,7 +79,7 @@ def make_db_from_pdf(pdf_dir: str, db_name: str, split_length: int = 128, ):
     return collection
 
 
-def make_db_from_csv(csv_dir: str, embedding_col: str, db_name: str):
+def make_db_from_csv(csv_dir, embedding_col: str, db_name: str):
     """
     function which creates a db from csv, preserving all cols in csv as metadatas.
 
@@ -114,7 +114,7 @@ def make_db_from_csv(csv_dir: str, embedding_col: str, db_name: str):
     return collection
     
 
-def make_db_from_docx(docx_dir: str, db_name: str, split_length: int = 128, ):
+def make_db_from_docx(docx_dir, db_name: str, split_length: int = 128, ):
     """
     func to create db from docx file.
 
@@ -139,7 +139,7 @@ def make_db_from_docx(docx_dir: str, db_name: str, split_length: int = 128, ):
     
     
 
-def make_db_from_txt(txt_dir: str, db_name: str, split_length: int = 150, ):
+def make_db_from_txt(txt, db_name: str, split_length: int = 128, ):
     """
     func to create db from txt file.
 
@@ -151,8 +151,10 @@ def make_db_from_txt(txt_dir: str, db_name: str, split_length: int = 150, ):
     outputs:
         - collection: returns ChromaDB collection that was just created.
     """
-    with open(txt_dir, 'r') as f:
-        text = f.read()
+    # with open(txt_dir, 'r') as f:
+    #     text = f.read()
+
+    text = str(txt.read())
     
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
@@ -163,6 +165,10 @@ def make_db_from_txt(txt_dir: str, db_name: str, split_length: int = 150, ):
                   ids = ids)
 
     return collection
+
+def list_all_collections():
+    collections_list = [x.name for x in client.list_collections()]
+    return collections_list
 
 ### TO DO:
 """
