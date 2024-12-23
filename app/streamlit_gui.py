@@ -95,9 +95,9 @@ def create_new_vectordb():
 
 @st.dialog("Create a new chat history")
 def create_new_chat_hist():
-    name = st.text_input("Put your chat name here!")
-    system_prompt = st.text_area("Put your system prompt here!")
-    injection_template = st.text_area("Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!")
+    name = st.text_input("Put your chat name here!", max_chars=156)
+    system_prompt = st.text_area("Put your system prompt here!", max_chars=750)
+    injection_template = st.text_area("Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!", max_chars=750)
     selected_db = st.selectbox(
         "select injection database",
         options = list_all_collections(),
@@ -191,7 +191,7 @@ with rag_tab:
 # Single chat input and response handling
 if st.session_state.current_chat and not st.session_state.is_generating:
 
-    prompt = st.chat_input("What is up?")
+    prompt = st.chat_input("What is up?", max_chars=3000)
 
         
     if prompt:
