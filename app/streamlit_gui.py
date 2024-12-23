@@ -151,6 +151,8 @@ def create_new_chat_hist():
             st.rerun()
         elif name.contains("^[a-zA-Z0-9_]*$", regex = True):
             st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+        elif name in list(st.session_state.all_chat_histories.keys()):
+            st.error("Chat history with that name already exists! Choose a different chat name.")
         elif all(string in injection_template for string in ['{INJECT_TEXT}', '{USER_MESSAGE}']):
             st.error("Injection template format invalid! Remember, put {INJECT_TEXT} where you'd like your RAG results to be injected, and {USER_MESSAGE} where you'd like your input message to be returned. Remember to include the curly brackets!")
         else:
