@@ -154,7 +154,7 @@ def make_db_from_txt(txt, db_name: str, split_length: int = 128, ):
     # with open(txt_dir, 'r') as f:
     #     text = f.read()
 
-    text = str(txt.read())
+    text = str(txt.read()).replace("\n", " ")
     
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
