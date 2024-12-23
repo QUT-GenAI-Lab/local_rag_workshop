@@ -31,6 +31,7 @@ def create_executable():
         '--hidden-import', 'chromadb',
         '--hidden-import', 'llama_cpp',
         '--hidden-import', 'streamlit',
+        '--hidden-import', 'pypdf',
         
         # Additional options to handle specific libraries
         '--collect-all', 'chromadb',
@@ -50,16 +51,18 @@ def create_executable():
         
         # List of files to copy
         files_to_copy = [
-            'streamlit_gui.py',
-            'chromadb_engine.py',
-            'llama_engine.py',
-            'RAG_backend.py'
+            # 'streamlit_gui.py',
+            # 'chromadb_engine.py',
+            # 'llama_engine.py',
+            # 'RAG_backend.py'
         ]
 
         # list of dirs to copy
         dirs_to_copy = [
             'chromadbs',
             'models',
+            'chats',
+            'llamatokenizer',
         ]
         
         for file in files_to_copy:

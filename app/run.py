@@ -2,6 +2,13 @@ import os
 import sys
 import streamlit.web.cli as stcli
 
+#jankily adding imports so that pyinstaller will recognise them
+import streamlit_gui
+import llama_engine
+import chromadb_engine
+import RAG_backend
+
+
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -30,8 +37,8 @@ def main():
         'run', 
         streamlit_gui_path,
         '--global.developmentMode','false',
-        '--server.port', '8501',
-        '--server.address', 'localhost',
+        '--server.enableCORS', 'true',
+        '--server.enableXsrfProtection', 'true'
     ]
 
     # Run Streamlit
