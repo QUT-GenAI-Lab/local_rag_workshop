@@ -3,10 +3,22 @@ from llama_engine import llama_chat_gen_streamed
 from RAG_backend import create_injection_prompt
 from chromadb_engine import list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt
 import pandas as pd
+import pickle
+import os
 
+def load_chat_histories():
+    chathist_list = [file for file in os.listdir('chats') if '.pickle' in file]
+    chathist_returndict = {}
+    for chatfile in chathist_list:
+        chatname = chatfile.replace('.pickle', '')
+        with open(os.path.join('chats', chatfile), 'rb') as f:
+            chathist_returndict[chatname] = pickle.load(f)
+    return chathist_returndict
+
+init_chat_hist = load_chat_histories()
 # Initialize session state variables
 if "all_chat_histories" not in st.session_state:
-    st.session_state.all_chat_histories = {}
+    st.session_state.all_chat_histories = init_chat_hist
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = None
@@ -14,11 +26,22 @@ if "current_chat" not in st.session_state:
 if "is_generating" not in st.session_state:
     st.session_state.is_generating = False
 
-if "new_chat_name" not in st.session_state:
-    st.session_state.new_chat_name = ""
+# if "new_chat_name" not in st.session_state:
+#     st.session_state.new_chat_name = ""
 
 if "use_rag" not in st.session_state:
     st.session_state.use_rag = True
+
+
+def save_chat_hist(chat_name):
+    chat_to_save = st.session_state.all_chat_histories[chat_name]
+    with open(os.path.join("chats", f"{chat_name}.pickle"), "wb") as f:
+        pickle.dump(chat_to_save, f)
+
+def delete_chat_hist(chat_name):
+    chat_hist_path = os.path.join("chats", f"{chat_name}.pickle")
+    os.remove(chat_hist_path)
+    
 
 @st.dialog("Create a new vector database")
 def create_new_vectordb():
@@ -88,6 +111,8 @@ def create_new_chat_hist():
                 'selected_db': selected_db,
             }
             st.session_state.current_chat = name
+            # save chat history now:
+            save_chat_hist(name)
             st.rerun()
             
         elif all(string in injection_template for string in ['{INJECT_TEXT}', '{USER_MESSAGE}']):
@@ -125,6 +150,7 @@ with st.sidebar:
 
             if len(st.session_state.all_chat_histories) > 1:
                 if st.button("Delete Current Chat"):
+                    delete_chat_hist(st.session_state.current_chat)
                     del st.session_state.all_chat_histories[st.session_state.current_chat]
                     st.session_state.current_chat = list(st.session_state.all_chat_histories.keys())[0]
                     st.rerun()
@@ -164,6 +190,9 @@ if st.session_state.current_chat and not st.session_state.is_generating:
     if prompt:
         # Get both histories
         chat_histories = st.session_state.all_chat_histories[st.session_state.current_chat]
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
         
         # Create normal and RAG versions of the message
         normal_message = {"role": "user", "content": prompt}
@@ -186,9 +215,7 @@ if st.session_state.current_chat and not st.session_state.is_generating:
             chat_histories['RAG_hist'].append(normal_message)
         
         # Display user message
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
+
         st.session_state.is_generating = True
         st.rerun()
 
@@ -212,6 +239,6 @@ if st.session_state.current_chat and st.session_state.is_generating:
     assistant_message = {"role": "assistant", "content": response}
     chat_histories['normal_hist'].append(assistant_message)
     chat_histories['RAG_hist'].append(assistant_message)
-    
+    save_chat_hist(st.session_state.current_chat)
     st.session_state.is_generating = False
     st.rerun()
