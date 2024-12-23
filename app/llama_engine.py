@@ -1,15 +1,18 @@
 from llama_cpp import Llama
+import os
 
 # at the moment, chat template not supported by the llama-cpp-python wrapper. Using this instead
 from transformers import AutoTokenizer
 
 context_length = 2048
 
-llm = Llama(model_path = 'models/Llama-3.2-3B-Instruct-abliterated.Q4_K_S.gguf', n_ctx=context_length) #set context window HERE! Then use external logic for setting processed context window idk????
+model_path = os.path.join('models','Llama-3.2-3B-Instruct-abliterated.Q4_K_S.gguf')
+
+llm = Llama(model_path = model_path, n_ctx=context_length) #set context window HERE! Then use external logic for setting processed context window idk????
 
 
 #for checking if inputs have enough room for generation:
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-3B-Instruct")
+tokenizer = AutoTokenizer.from_pretrained("llamatokenizer") #change this to a public one (the abliterated one should work)
 
 def trim_inputs(input_chat: list[dict], context_length: int, new_tokens: int) -> list[dict]:
     """
