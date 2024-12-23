@@ -1,10 +1,12 @@
 import streamlit as st
-from llama_engine import llama_chat_gen_streamed
-from RAG_backend import create_injection_prompt
-from chromadb_engine import list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt
-import pandas as pd
-import pickle
-import os
+with st.spinner("loading packages..."):
+    
+    from llama_engine import llama_chat_gen_streamed
+    from RAG_backend import create_injection_prompt
+    from chromadb_engine import list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt
+    import pandas as pd
+    import pickle
+    import os
 
 def load_chat_histories():
     chathist_list = [file for file in os.listdir('chats') if '.pickle' in file]
@@ -14,8 +16,9 @@ def load_chat_histories():
         with open(os.path.join('chats', chatfile), 'rb') as f:
             chathist_returndict[chatname] = pickle.load(f)
     return chathist_returndict
-
-init_chat_hist = load_chat_histories()
+    
+with st.spinner("loading chat history..."):
+    init_chat_hist = load_chat_histories()
 # Initialize session state variables
 if "all_chat_histories" not in st.session_state:
     st.session_state.all_chat_histories = init_chat_hist
@@ -59,29 +62,33 @@ def create_new_vectordb():
                 index = 0
             )
             if st.button("create database from csv!"):
-                uploaded_file.seek(0) #reset pointer I guess?
-                make_db_from_csv(uploaded_file, embedding_column, name)
+                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                    uploaded_file.seek(0) #reset pointer I guess?
+                    make_db_from_csv(uploaded_file, embedding_column, name)
                 st.rerun()
 
         # options for docx
         elif '.doc' in filename[-5:]: #jankily allowing for detection of .doc and .docx
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from word document!"):
-                make_db_from_docx(uploaded_file, name, split_length)
+                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                    make_db_from_docx(uploaded_file, name, split_length)
                 st.rerun()
 
         #options for .txt
         elif '.txt' in filename[-4:]:
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from text document!"):
-                make_db_from_txt(uploaded_file, name, split_length)
+                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                    make_db_from_txt(uploaded_file, name, split_length)
                 st.rerun()
 
         #options for pdf
         elif '.pdf' in filename[-4:]:
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from pdf document!"):
-                make_db_from_pdf(uploaded_file, name, split_length)
+                with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
+                    make_db_from_pdf(uploaded_file, name, split_length)
                 st.rerun()
 
     
