@@ -64,6 +64,10 @@ def create_new_vectordb():
             if st.button("create database from csv!"):
                 if name.contains("^[a-zA-Z0-9_]*$", regex = True):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+
+                elif name in list_all_collections():
+                    st.error("db with that name already exists! Use a different name.")
+                
                 else:
                     with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
                         uploaded_file.seek(0) #reset pointer I guess?
@@ -74,8 +78,12 @@ def create_new_vectordb():
         elif '.doc' in filename[-5:]: #jankily allowing for detection of .doc and .docx
             split_length = st.slider("number of words per embedding split", 32, 256, 128, 1)
             if st.button("create database from word document!"):
+                
                 if name.contains("^[a-zA-Z0-9_]*$", regex = True):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                    
+                elif name in list_all_collections():
+                    st.error("db with that name already exists! Use a different name.")
                 else:
                     with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
                         make_db_from_docx(uploaded_file, name, split_length)
@@ -87,6 +95,10 @@ def create_new_vectordb():
             if st.button("create database from text document!"):
                 if name.contains("^[a-zA-Z0-9_]*$", regex = True):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                    
+                elif name in list_all_collections():
+                    st.error("db with that name already exists! Use a different name.")
+                    
                 else:
                     with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
                         make_db_from_txt(uploaded_file, name, split_length)
@@ -98,6 +110,10 @@ def create_new_vectordb():
             if st.button("create database from pdf document!"):
                 if name.contains("^[a-zA-Z0-9_]*$", regex = True):
                     st.error("Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters")
+                    
+                elif name in list_all_collections():
+                    st.error("db with that name already exists! Use a different name.")
+                    
                 else:
                     with st.spinner("creating vector database (this can take really long depending on the filesize!)..."):
                         make_db_from_pdf(uploaded_file, name, split_length)
