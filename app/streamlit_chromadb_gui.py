@@ -4,10 +4,6 @@ import pandas as pd
 
 st.title("ChromaDB Explorer")
 
-# Initialize session state for tracking the selected collection
-if 'previous_collection' not in st.session_state:
-    st.session_state.previous_collection = None
-
 chromadb_col1, chromadb_col2, chromadb_col3 = st.columns([3,3,1])
 # Collection selection
 with chromadb_col1:
@@ -22,13 +18,6 @@ with chromadb_col2:
 
 with chromadb_col3:
     n_results = st.number_input("No. Results:", min_value=1, max_value=50, value=5, step = 1)
-
-# Reset query input if collection changes
-if st.session_state.previous_collection != selected_db:
-    st.session_state.previous_collection = selected_db
-    # Reset the query input using session state
-    if 'query_text' in st.session_state:
-        del st.session_state.query_text
 
 # Initialize collection
 collection = client.get_collection(selected_db)
@@ -48,7 +37,7 @@ else:
     data = collection.get()
     st.dataframe(create_df_from_chromadb_get(data), use_container_width=True)
 
-# Add collection info
-st.sidebar.subheader("Collection Info")
+# # Add collection info
+# st.sidebar.subheader("Collection Info")
 collection_count = collection.count()
-st.sidebar.write(f"Total documents: {collection_count}")
+st.write(f"Total documents: {collection_count}")
