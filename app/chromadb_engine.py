@@ -3,6 +3,10 @@ import pandas as pd
 from pypdf import PdfReader
 import docx2txt
 
+import numpy as np
+import plotly.express as px
+from umap.umap_ import UMAP
+
 #load persistent dir
 client = chromadb.PersistentClient(path="chromadbs")
 
@@ -188,6 +192,59 @@ def create_df_from_chromadb_query(results):
         results_df = pd.concat([results_df, metadata_df], axis=1)
 
     return results_df
+
+def visualize_embeddings_3d(collection):
+    """
+    Create an interactive 3D visualization of the embeddings using UMAP and Plotly
+    """
+    # Get embeddings
+    data = collection.get(include=['embeddings', 'documents'])
+    embeddings = np.array(data['embeddings'])
+    
+    # Reduce dimensionality to 3D with UMAP
+    umap = UMAP(n_components=3, n_jobs=-1)
+    embeddings_3d = umap.fit_transform(embeddings)
+    
+    # Create dataframe for plotting
+    plot_df = pd.DataFrame(embeddings_3d, columns=['UMAP1', 'UMAP2', 'UMAP3'])
+    plot_df['text'] = data['documents']
+    plot_df['wrapped_text'] = plot_df['text'].apply(
+    lambda x: '<br>'.join([x[i:i+50] for i in range(0, len(x), 50)])
+)# Add documents for hover text with breaks for plotly.
+    
+    # Create 3D scatter plot
+    fig = px.scatter_3d(
+        plot_df, 
+        x='UMAP1', 
+        y='UMAP2',
+        z='UMAP3',
+        hover_data={'wrapped_text': True},
+        # title='3D Document Embeddings Visualization',
+    )
+    
+    # Update layout for better interaction
+    fig.update_layout(
+        scene = dict(
+            xaxis = dict(showbackground=False),
+            yaxis = dict(showbackground=False),
+            zaxis = dict(showbackground=False),
+            camera=dict(
+                up=dict(x=0, y=0, z=1),
+                center=dict(x=0, y=0, z=0),
+                eye=dict(x=1.5, y=1.5, z=1.5)
+            )
+        ),
+        autosize=True,
+        width=800,
+        height=800,
+        margin=dict(l=0, r=0, t=30, b=0)
+    )
+
+    fig.update_traces(
+        marker=dict(size=1),
+    )
+    
+    return fig
 
 ### TO DO:
 """
