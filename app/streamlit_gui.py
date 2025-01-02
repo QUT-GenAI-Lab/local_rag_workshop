@@ -209,11 +209,12 @@ def chromadb_explore():
         st.subheader("3D Embedding Visualization")
         st.markdown("Explore the embedding space of your vector database!")
         st.info("Drag to rotate, scroll to zoom, double-click to reset view")
-        try:
-            fig = visualize_embeddings_3d(collection)
-            st.plotly_chart(fig, use_container_width=True)
-        except Exception as e:
-            st.error(f"Unable to visualize collection: {str(e)}")
+        with st.spinner("generating 3D UMAP of embeddings..."):
+            try:
+                fig = visualize_embeddings_3d(collection)
+                st.plotly_chart(fig, use_container_width=True)
+            except Exception as e:
+                st.error(f"Unable to visualize collection: {str(e)}")
     
 
 # Initial chat creation dialog
