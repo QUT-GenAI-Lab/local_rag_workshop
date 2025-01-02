@@ -3,7 +3,7 @@ with st.spinner("loading packages..."):
     
     from llama_engine import llama_chat_gen_streamed
     from RAG_backend import create_injection_prompt
-    from chromadb_engine import list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d
+    from chromadb_engine import client, list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d
     import pandas as pd
     import pickle
     import os
