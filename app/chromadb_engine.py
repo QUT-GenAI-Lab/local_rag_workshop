@@ -237,7 +237,7 @@ def visualize_embeddings_3d(collection):
         autosize=True,
         width=800,
         height=800,
-        margin=dict(l=0, r=0, t=30, b=0)
+        margin=dict(l=0, r=0, t=0, b=0)
     )
 
     fig.update_traces(

@@ -3,7 +3,7 @@ with st.spinner("loading packages..."):
     
     from llama_engine import llama_chat_gen_streamed
     from RAG_backend import create_injection_prompt
-    from chromadb_engine import *#list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt
+    from chromadb_engine import list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d
     import pandas as pd
     import pickle
     import os
@@ -211,7 +211,7 @@ def chromadb_explore():
         st.info("Drag to rotate, scroll to zoom, double-click to reset view")
         with st.spinner("generating 3D UMAP of embeddings..."):
             try:
-                fig = visualize_embeddings_3d(collection)
+                fig = visualise_embeddings_3d(collection)
                 st.plotly_chart(fig, use_container_width=True)
             except Exception as e:
                 st.error(f"Unable to visualize collection: {str(e)}")
