@@ -170,6 +170,25 @@ def list_all_collections():
     collections_list = [x.name for x in client.list_collections()]
     return collections_list
 
+def create_df_from_chromadb_get(data):
+    documents_df = pd.DataFrame(data['documents'], columns=['Documents that were embedded'])
+    if not all(x==None for x in data['metadatas']):
+        metadatas_df = pd.DataFrame(data['metadatas'])
+        documents_df = pd.concat([documents_df, metadatas_df], axis=1)
+    return documents_df
+
+def create_df_from_chromadb_query(results):
+    results_df = pd.DataFrame({
+        'Document': results['documents'][0],
+        'Distance': results['distances'][0] if 'distances' in results else ['N/A'] * len(results['documents'][0])
+    })
+    
+    if results['metadatas'] and not all(x==None for x in results['metadatas'][0]):
+        metadata_df = pd.DataFrame(results['metadatas'][0])
+        results_df = pd.concat([results_df, metadata_df], axis=1)
+
+    return results_df
+
 ### TO DO:
 """
 TO DO:
