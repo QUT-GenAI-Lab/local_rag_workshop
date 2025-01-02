@@ -164,10 +164,12 @@ def create_new_chat_hist():
 
 @st.dialog("Explore your ChromaDB databases", width="large")
 def chromadb_explore():
+    default_db = st.session_state.all_chat_histories[st.session_state.current_chat]['selected_db']
+    default_index = list_all_collections().index(default_db)
     selected_db = st.selectbox(
         "Collection:",
         options=list_all_collections(),
-        index=0,
+        index=default_index,
         key='collection_selector'
     )
     
