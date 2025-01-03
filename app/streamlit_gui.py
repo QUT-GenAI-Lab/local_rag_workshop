@@ -52,7 +52,7 @@ def delete_chromadb_collection(collection_name):
     list_of_relevant_chats = [x for x in list(all_histories.keys()) if all_histories[x]['selected_db']==collection_name]
     for chatname in list_of_relevant_chats:
         del st.session_state.all_chat_histories[chatname]
-    delete_chat_hist(collection_name)
+        delete_chat_hist(chatname)
     delete_collection(collection_name)
     
     
@@ -234,6 +234,14 @@ def chromadb_explore():
             except Exception as e:
                 st.error(f"Unable to visualize collection: {str(e)}")
     
+@st.dialog("Are you sure you want to delete this database?")
+def delete_database_confirmation(collection_name):
+    st.write(f"Are you sure you want to delete {collection_name} database? Doing so will erase the database AS WELL AS ALL ASSOCIATED CHATS!!! THIS ACTION CANNOT BE UNDONE!!!")
+    if st.button("YES, I WANT TO DELETE THIS DATABASE! 💀"):
+        delete_chromadb_collection(collection_name)
+        st.session_state.current_chat = None # temporary catchall for if you're deleting a chat wiht the same db you're deleting
+        st.rerun()
+
 
 # Initial chat creation dialog
 # if len(st.session_state.all_chat_histories) == 0:
@@ -281,6 +289,15 @@ with st.sidebar:
 
     if st.button("Explore existing Databases"):
         chromadb_explore()
+
+    with st.expander("DB management", expanded = False):
+        db_to_delete = st.selectbox(
+            "Select DB to delete",
+            options=list_all_collections(),
+            index=list(st.session_state.all_chat_histories.keys()).index(st.session_state.current_chat) if st.session_state.current_chat else 0
+        )
+        if st.button("DELETE DATABASE! 💀", type = "secondary"):
+            delete_database_confirmation(db_to_delete)
 
 # Display function for chat histories
 def display_chat_hist(mode='normal_hist'):
