@@ -161,7 +161,7 @@ def create_new_chat_hist():
                     'system_prompt': system_prompt,
                     'injection_template': injection_template,
                     'selected_db': selected_db,
-                    'injection_col': None if 'injection_col' not in locals() else injection_col
+                    'injection_col': None if 'injection_col' not in locals() else injection_col #check if injection_col var exists
                 }
                 st.session_state.current_chat = name
                 # save chat history now:
@@ -310,7 +310,7 @@ if st.session_state.current_chat and not st.session_state.is_generating:
             prompt, 
             num_return = num_return, 
             max_dist = max_dist, 
-            inject_col = None, #how do I do this?????? 
+            inject_col = chat_histories['injection_col'],
             inject_template=chat_histories['injection_template']
         )
         rag_message = {"role": "user", "content": injection_prompt}
