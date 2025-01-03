@@ -132,6 +132,14 @@ def create_new_chat_hist():
         options = list_all_collections(),
         index = 0 #defaults to first example injection database
     )
+    #checking if there are metadatas/"columns" that have options for injection, making selectbox if so
+    quick_sample = client.get_collection(selected_db).get(limit=5)
+    if not all(x==None for x in quick_sample["metadatas"]):
+        injection_col = st.selectbox(
+            "select column for injection into RAG",
+            options = list(quick_sample["metadatas"][0].keys()), #assuming first item in quick_sample has all metadatas, which as of 03/01/2025, is correct
+            index = 0
+        )
         
     if st.button("Create", use_container_width=True):
         #error checking
@@ -153,6 +161,7 @@ def create_new_chat_hist():
                     'system_prompt': system_prompt,
                     'injection_template': injection_template,
                     'selected_db': selected_db,
+                    'injection_col': None if 'injection_col' not in locals() else injection_col #check if injection_col var exists
                 }
                 st.session_state.current_chat = name
                 # save chat history now:
@@ -301,7 +310,7 @@ if st.session_state.current_chat and not st.session_state.is_generating:
             prompt, 
             num_return = num_return, 
             max_dist = max_dist, 
-            inject_col = None, #how do I do this?????? 
+            inject_col = chat_histories['injection_col'],
             inject_template=chat_histories['injection_template']
         )
         rag_message = {"role": "user", "content": injection_prompt}
