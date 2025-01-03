@@ -3,7 +3,7 @@ with st.spinner("loading packages..."):
     
     from llama_engine import llama_chat_gen_streamed
     from RAG_backend import create_injection_prompt
-    from chromadb_engine import client, list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d
+    from chromadb_engine import client, list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d, delete_collection
     import pandas as pd
     import pickle
     import os
@@ -46,7 +46,16 @@ def delete_chat_hist(chat_name):
     chat_hist_path = os.path.join("chats", f"{chat_name}.pickle")
     os.remove(chat_hist_path)
     
-
+def delete_chromadb_collection(collection_name):
+    # delete all chat histories with collection name in it
+    all_histories = st.session_state.all_chat_histories
+    list_of_relevant_chats = [x for x in list(all_histories.keys()) if all_histories[x]['selected_db']==collection_name]
+    for chatname in list_of_relevant_chats:
+        del st.session_state.all_chat_histories[chatname]
+    delete_chat_hist(collection_name)
+    delete_collection(collection_name)
+    
+    
 @st.dialog("Create a new vector database")
 def create_new_vectordb():
     name = st.text_input("Put your database name here!")
