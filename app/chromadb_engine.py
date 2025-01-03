@@ -193,9 +193,9 @@ def create_df_from_chromadb_query(results):
 
     return results_df
 
-def visualize_embeddings_3d(collection):
+def visualise_embeddings_3d(collection):
     """
-    Create an interactive 3D visualization of the embeddings using UMAP and Plotly
+    Create an interactive 3D visualisation of the embeddings using UMAP and Plotly
     """
     # Get embeddings
     data = collection.get(include=['embeddings', 'documents'])
