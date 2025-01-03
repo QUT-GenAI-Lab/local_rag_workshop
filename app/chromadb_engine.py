@@ -246,6 +246,9 @@ def visualise_embeddings_3d(collection):
     
     return fig
 
+def delete_collection(collection_name):
+    client.delete_collection(collection_name)
+
 ### TO DO:
 """
 TO DO:
