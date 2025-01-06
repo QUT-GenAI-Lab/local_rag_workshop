@@ -7,6 +7,7 @@ def check_ollama_install():
     test = subprocess.run('ollama --version', shell=True, check=False)
     if test.returncode == 0:
         return True
+
     else:
         return False
 
