@@ -16,6 +16,7 @@ def check_and_serve_ollama():
         return
     except HTTPError:
         subprocess.run('ollama serve', shell=True)
+        return
 
 def ollama_list_and_install_models():
     model_list = ollama.list()['models']
