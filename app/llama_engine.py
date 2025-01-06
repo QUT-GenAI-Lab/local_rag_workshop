@@ -17,6 +17,11 @@ def check_and_serve_ollama():
     except HTTPError:
         subprocess.run('ollama serve', shell=True)
 
+def ollama_list_and_install_models():
+    model_list = ollama.list()['models']
+    if not model_list: #if list is empty, install llama3.2 model as default
+        subprocess.run('ollama pull llama3.2', shell=True)
+    return [x['model'] for x in ollama.list()['models']]
 
 def ollama_load_model(model_str):
     test = chat(
@@ -25,7 +30,6 @@ def ollama_load_model(model_str):
         {'role': 'user', 'content': 'Hello'},
              ],
     )
-
 
 def llama_chat_gen(input_chat: list[dict], model: str = 'llama3.2') -> list[dict]:
     """
