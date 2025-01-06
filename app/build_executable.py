@@ -22,10 +22,10 @@ def create_executable():
         # '--add-data', f'models{os.pathsep}models',
         
         # Add Python source files
-        '--add-data', f'streamlit_gui.py{os.pathsep}.',
-        '--add-data', f'chromadb_engine.py{os.pathsep}.',
-        '--add-data', f'llama_engine.py{os.pathsep}.',
-        '--add-data', f'RAG_backend.py{os.pathsep}.',
+        # '--add-data', f'streamlit_gui.py{os.pathsep}.',
+        # '--add-data', f'chromadb_engine.py{os.pathsep}.',
+        # '--add-data', f'llama_engine.py{os.pathsep}.',
+        # '--add-data', f'RAG_backend.py{os.pathsep}.',
         
         # Hidden imports for potential dependencies
         '--hidden-import', 'chromadb',
@@ -51,10 +51,10 @@ def create_executable():
         
         # List of files to copy
         files_to_copy = [
-            # 'streamlit_gui.py',
-            # 'chromadb_engine.py',
-            # 'llama_engine.py',
-            # 'RAG_backend.py'
+            'streamlit_gui.py',
+            'chromadb_engine.py',
+            'llama_engine.py',
+            'RAG_backend.py'
         ]
 
         # list of dirs to copy
