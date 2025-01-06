@@ -60,9 +60,7 @@ def create_executable():
         # list of dirs to copy
         dirs_to_copy = [
             'chromadbs',
-            'models',
             'chats',
-            'llamatokenizer',
         ]
         
         for file in files_to_copy:
