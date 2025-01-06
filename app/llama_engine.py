@@ -1,37 +1,33 @@
-from llama_cpp import Llama
+import ollama
+from ollama import chat, ChatResponse
+import subprocess
+import requests
 
-# at the moment, chat template not supported by the llama-cpp-python wrapper. Using this instead
-from transformers import AutoTokenizer
-
-context_length = 2048
-
-llm = Llama(model_path = 'models/Llama-3.2-3B-Instruct-abliterated.Q4_K_S.gguf', n_ctx=context_length) #set context window HERE! Then use external logic for setting processed context window idk????
-
-
-#for checking if inputs have enough room for generation:
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.2-3B-Instruct")
-
-def trim_inputs(input_chat: list[dict], context_length: int, new_tokens: int) -> list[dict]:
-    """
-    assumes system prompt - returns chat history with earlier messages removed
-    """
-    max_length = context_length - new_tokens
-    input_length = len(tokenizer.apply_chat_template(input_chat))
-    cut_idx = 1
-    if input_length < max_length:
-        return input_chat
+def check_ollama_install():
+    test = subprocess.run('ollama --version', shell=True, check=False)
+    if test.returncode == 0:
+        return True
     else:
-        while input_length >= max_length:
-            cut_idx +=1
-            output = [input_chat[0]] + input_chat[cut_idx:]
-            input_length = len(tokenizer.apply_chat_template(output))
+        return False
 
-        return output
-    
+def check_and_serve_ollama():
+    try:
+        requests.get('http://0.0.0.0:11434').raise_for_status()
+        return
+    except HTTPError:
+        subprocess.run('ollama serve', shell=True)
 
-### ^ also potentially use this for model swap???? Unsure if that's a feature I want people to have
 
-def llama_chat_gen(input_chat: list[dict], context_length: int = context_length, new_tokens: int = 128) -> list[dict]:
+def ollama_load_model(model_str):
+    test = chat(
+    model = model_str,
+    messages = [
+        {'role': 'user', 'content': 'Hello'},
+             ],
+    )
+
+
+def llama_chat_gen(input_chat: list[dict], model: str = 'llama3.2') -> list[dict]:
     """
     returns whole chat from unaugmented chat input
 
@@ -41,14 +37,20 @@ def llama_chat_gen(input_chat: list[dict], context_length: int = context_length,
     output:
         - input_chat: list[dict] - same as input but with new, generated output. Length of list output should be len(input_chat)+1
     """
-    inputs = trim_inputs(input_chat, context_length, new_tokens)
-    init_output = llm.create_chat_completion(messages = inputs)
-    response = init_output["choices"][0]['message']
-    print(response['content'])
-    input_chat.append(response)
+
+    init_output = chat(
+                    model = model,
+                    messages = input_chat,
+                    )
+    response = init_output['message']['content']
+    
+    input_chat.append({'role': 'assistant',
+                       'content': response
+                      }
+                     )
     return input_chat
 
-def llama_chat_gen_streamed(input_chat: list[dict], context_length: int = context_length, new_tokens: int = 128) -> list[dict]:
+def llama_chat_gen_streamed(input_chat: list[dict], model: str = 'llama3.2') -> list[dict]:
     """
     returns whole chat from unaugmented chat input
 
@@ -58,8 +60,10 @@ def llama_chat_gen_streamed(input_chat: list[dict], context_length: int = contex
     output:
         - input_chat: list[dict] - same as input but with new, generated output. Length of list output should be len(input_chat)+1
     """
-    inputs = trim_inputs(input_chat, context_length, new_tokens)
-    for item in llm.create_chat_completion(messages = inputs, stream=True):
-        if 'content' in item['choices'][0]['delta'].keys():
-            yield item['choices'][0]['delta']['content']
-    # return output
+    init_output = chat(
+                    model = model,
+                    messages = input_chat,
+                    stream = True,
+                    )
+    for item in init_output:
+        yield item['message']['content']
