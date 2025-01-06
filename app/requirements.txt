@@ -149,14 +149,12 @@ streamlit==1.41.0
 sympy==1.13.3
 tenacity==9.0.0
 threadpoolctl==3.5.0
-tokenizers==0.21.0
 toml==0.10.2
 tomli==2.2.1
 toolz==1.0.0
 tornado==6.4.2
 tqdm==4.67.1
 traitlets==5.14.3
-transformers==4.47.0
 typer==0.15.1
 typing_extensions==4.12.2
 tzdata==2024.2
