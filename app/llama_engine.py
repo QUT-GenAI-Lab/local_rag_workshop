@@ -2,6 +2,7 @@ import ollama
 from ollama import chat, ChatResponse
 import subprocess
 import requests
+from requests.exceptions import RequestException
 
 def check_ollama_install():
     test = subprocess.run('ollama --version', shell=True, check=False)
@@ -13,9 +14,9 @@ def check_ollama_install():
 
 def check_and_serve_ollama():
     try:
-        requests.get('http://0.0.0.0:11434').raise_for_status()
+        requests.get('http://localhost:11434').raise_for_status()
         return
-    except HTTPError:
+    except RequestException:
         subprocess.run('ollama serve', shell=True)
         return
 
