@@ -15,7 +15,7 @@ def create_executable():
     pyinstaller_command = [
         'pyinstaller',
         '--onedir',           # Create a directory with executable and dependencies
-        '--windowed',         # No console window (for GUI apps)
+        # '--windowed',         # No console window (for GUI apps)
         '--noconfirm',        # rewrite build and dist folders automatically without confirmation (your fault for deleting your shit brus).
         
         # Add data files and directories
@@ -42,6 +42,7 @@ def create_executable():
         '--collect-all', 'umap',
         '--collect-all', 'pynndescent',
         '--collect-all', 'numba',
+        '--collect-all', 'tokenizers', #windows-specific issues
         
         
         # Specify the entry point
