@@ -4,6 +4,8 @@ with st.spinner("loading ollama backend..."):
 
 #initialise base directories
 from os import path
+import os
+
 BASE_DIR = path.abspath(path.dirname(__file__))
 CHAT_DIR = os.path.join(BASE_DIR, 'chats')
 
@@ -33,6 +35,7 @@ def initialise_ollama():
                 st.rerun()
             
 if st.session_state.initialisation == True:
+    st.title("Initialise Ollama!")
     initialise_ollama()
 
 if st.session_state.initialisation == False:
@@ -42,7 +45,6 @@ if st.session_state.initialisation == False:
         from chromadb_engine import client, list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d, delete_collection
         import pandas as pd
         import pickle
-        import os
         import re
     
     def load_chat_histories():

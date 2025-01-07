@@ -16,10 +16,11 @@ def create_executable():
         'pyinstaller',
         '--onedir',           # Create a directory with executable and dependencies
         '--windowed',         # No console window (for GUI apps)
+        '--noconfirm',        # rewrite build and dist folders automatically without confirmation (your fault for deleting your shit brus).
         
         # Add data files and directories
         # '--add-data', f'chromadbs{os.pathsep}chromadbs',
-        # '--add-data', f'models{os.pathsep}models',
+        # '--add-data', f'chats{os.pathsep}chats',
         
         # Add Python source files
         # '--add-data', f'streamlit_gui.py{os.pathsep}.',
@@ -28,15 +29,20 @@ def create_executable():
         # '--add-data', f'RAG_backend.py{os.pathsep}.',
         
         # Hidden imports for potential dependencies
-        '--hidden-import', 'chromadb',
-        '--hidden-import', 'llama_cpp',
-        '--hidden-import', 'streamlit',
-        '--hidden-import', 'pypdf',
+        '--hidden-import','sklearn.tree._partitioner',
         
         # Additional options to handle specific libraries
+        '--collect-all', 'pypdf',
         '--collect-all', 'chromadb',
-        '--collect-all', 'llama_cpp',
         '--collect-all', 'streamlit',
+        '--collect-all', 'sklearn', #seems to be having issues with sklearn
+        '--collect-all', 'ollama',
+        '--collect-all', 'onnxruntime',
+        '--collect-all', 'docx2txt',
+        '--collect-all', 'umap',
+        '--collect-all', 'pynndescent',
+        '--collect-all', 'numba',
+        
         
         # Specify the entry point
         'run.py'
