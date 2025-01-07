@@ -2,6 +2,13 @@ import streamlit as st
 with st.spinner("loading ollama backend..."):
     from llama_engine import * #llama_chat_gen_streamed
 
+#initialise base directories
+from os import path
+import os
+
+BASE_DIR = path.abspath(path.dirname(__file__))
+CHAT_DIR = os.path.join(BASE_DIR, 'chats')
+
 #janky way of starting llama chat engine
 if "initialisation" not in st.session_state:
     st.session_state.initialisation = True
@@ -28,6 +35,7 @@ def initialise_ollama():
                 st.rerun()
             
 if st.session_state.initialisation == True:
+    st.title("Initialise Ollama!")
     initialise_ollama()
 
 if st.session_state.initialisation == False:
@@ -37,15 +45,14 @@ if st.session_state.initialisation == False:
         from chromadb_engine import client, list_all_collections, make_db_from_csv, make_db_from_docx, make_db_from_pdf, make_db_from_txt, create_df_from_chromadb_get, create_df_from_chromadb_query, visualise_embeddings_3d, delete_collection
         import pandas as pd
         import pickle
-        import os
         import re
     
     def load_chat_histories():
-        chathist_list = [file for file in os.listdir('chats') if '.pickle' in file]
+        chathist_list = [file for file in os.listdir(CHAT_DIR) if '.pickle' in file]
         chathist_returndict = {}
         for chatfile in chathist_list:
             chatname = chatfile.replace('.pickle', '')
-            with open(os.path.join('chats', chatfile), 'rb') as f:
+            with open(os.path.join(CHAT_DIR, chatfile), 'rb') as f:
                 chathist_returndict[chatname] = pickle.load(f)
         return chathist_returndict
         
@@ -70,11 +77,11 @@ if st.session_state.initialisation == False:
     
     def save_chat_hist(chat_name):
         chat_to_save = st.session_state.all_chat_histories[chat_name]
-        with open(os.path.join("chats", f"{chat_name}.pickle"), "wb") as f:
+        with open(os.path.join(CHAT_DIR, f"{chat_name}.pickle"), "wb") as f:
             pickle.dump(chat_to_save, f)
     
     def delete_chat_hist(chat_name):
-        chat_hist_path = os.path.join("chats", f"{chat_name}.pickle")
+        chat_hist_path = os.path.join(CHAT_DIR, f"{chat_name}.pickle")
         os.remove(chat_hist_path)
         
     def delete_chromadb_collection(collection_name):

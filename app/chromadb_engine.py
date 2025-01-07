@@ -7,6 +7,11 @@ import numpy as np
 import plotly.express as px
 from umap.umap_ import UMAP
 
+from os import path
+import os
+BASE_DIR = path.abspath(path.dirname(__file__))
+DB_DIR = os.path.join(BASE_DIR, "chromadbs")
+
 #load persistent dir
 client = chromadb.PersistentClient(path="chromadbs")
 

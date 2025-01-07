@@ -15,28 +15,35 @@ def create_executable():
     pyinstaller_command = [
         'pyinstaller',
         '--onedir',           # Create a directory with executable and dependencies
-        '--windowed',         # No console window (for GUI apps)
+        # '--windowed',         # No console window (for GUI apps)
+        '--noconfirm',        # rewrite build and dist folders automatically without confirmation (your fault for deleting your shit brus).
         
         # Add data files and directories
         # '--add-data', f'chromadbs{os.pathsep}chromadbs',
-        # '--add-data', f'models{os.pathsep}models',
+        # '--add-data', f'chats{os.pathsep}chats',
         
         # Add Python source files
-        '--add-data', f'streamlit_gui.py{os.pathsep}.',
-        '--add-data', f'chromadb_engine.py{os.pathsep}.',
-        '--add-data', f'llama_engine.py{os.pathsep}.',
-        '--add-data', f'RAG_backend.py{os.pathsep}.',
+        # '--add-data', f'streamlit_gui.py{os.pathsep}.',
+        # '--add-data', f'chromadb_engine.py{os.pathsep}.',
+        # '--add-data', f'llama_engine.py{os.pathsep}.',
+        # '--add-data', f'RAG_backend.py{os.pathsep}.',
         
         # Hidden imports for potential dependencies
-        '--hidden-import', 'chromadb',
-        '--hidden-import', 'llama_cpp',
-        '--hidden-import', 'streamlit',
-        '--hidden-import', 'pypdf',
+        '--hidden-import','sklearn.tree._partitioner',
         
         # Additional options to handle specific libraries
+        '--collect-all', 'pypdf',
         '--collect-all', 'chromadb',
-        '--collect-all', 'llama_cpp',
         '--collect-all', 'streamlit',
+        '--collect-all', 'sklearn', #seems to be having issues with sklearn
+        '--collect-all', 'ollama',
+        '--collect-all', 'onnxruntime',
+        '--collect-all', 'docx2txt',
+        '--collect-all', 'umap',
+        '--collect-all', 'pynndescent',
+        '--collect-all', 'numba',
+        '--collect-all', 'tokenizers', #windows-specific issues
+        
         
         # Specify the entry point
         'run.py'
@@ -51,18 +58,16 @@ def create_executable():
         
         # List of files to copy
         files_to_copy = [
-            # 'streamlit_gui.py',
-            # 'chromadb_engine.py',
-            # 'llama_engine.py',
-            # 'RAG_backend.py'
+            'streamlit_gui.py',
+            'chromadb_engine.py',
+            'llama_engine.py',
+            'RAG_backend.py'
         ]
 
         # list of dirs to copy
         dirs_to_copy = [
             'chromadbs',
-            'models',
             'chats',
-            'llamatokenizer',
         ]
         
         for file in files_to_copy:
