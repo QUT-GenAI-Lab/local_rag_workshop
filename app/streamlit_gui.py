@@ -47,6 +47,13 @@ if st.session_state.initialisation == False:
         import pickle
         import re
     
+    def load_chromadb():
+        collection = client.get_collection("us_constitution")
+        collection.query(query_texts = ['test'], 
+                        n_results = 1
+                        )
+        st.session_state.chromadb_loaded = True
+    
     def load_chat_histories():
         chathist_list = [file for file in os.listdir(CHAT_DIR) if '.pickle' in file]
         chathist_returndict = {}
@@ -73,6 +80,13 @@ if st.session_state.initialisation == False:
     
     if "use_rag" not in st.session_state:
         st.session_state.use_rag = True
+    
+    #jank way to load chromadb on startup
+    if "chromadb_loaded" not in st.session_state:
+        st.session_state.chromadb_loaded = False
+    
+    if not st.session_state.chromadb_loaded:
+        load_chromadb()
     
     
     def save_chat_hist(chat_name):
