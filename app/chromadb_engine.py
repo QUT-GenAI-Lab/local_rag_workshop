@@ -17,6 +17,10 @@ client = chromadb.PersistentClient(path="chromadbs")
 
 # generic funcs
 
+def clean_utf8(input_str):
+    input_str = bytes(input_str, 'utf-8').decode('utf-8', 'ignore')
+    return input_str
+
 def split_texts(input_str: str, split_length: int = 128) -> list[str]:
     """
     takes a text input and splits it into a list of strings of 128 words (or less for the last entry if it doesn't make it up to 128 words)
@@ -69,6 +73,7 @@ def make_db_from_pdf(pdf_dir, db_name: str, split_length: int = 128, ):
     for page in reader.pages:
         text = page.extract_text()
         text = text.replace('\n', ' ') #clean text of new lines
+        text = clean_utf8(text)
         pagetexts.append(text)
 
     for pagetext in pagetexts:
@@ -108,6 +113,7 @@ def make_db_from_csv(csv_dir, embedding_col: str, db_name: str):
     #ingest and prepare data
     init_df = pd.read_csv(csv_dir)
     documents = list(init_df[embedding_col])
+    documents = [clean_utf8(str(x)) for x in documents]
     #add metadatas for select querying I guess, or allowing to pick what we query
     metadatas = [init_df.loc[x].to_dict() for x in range(len(init_df))]
     ids = [f"id{num}" for num in range(len(init_df))]
@@ -136,6 +142,7 @@ def make_db_from_docx(docx_dir, db_name: str, split_length: int = 128, ):
         - collection: returns ChromaDB collection that was just created.
     """
     text = docx2txt.process(docx_dir)
+    text = clean_utf8(text)
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
 
@@ -164,7 +171,7 @@ def make_db_from_txt(txt, db_name: str, split_length: int = 128, ):
     #     text = f.read()
 
     text = txt.read().decode("utf-8").replace("\n", " ")
-    
+    text = clean_utf8(text)
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
 
