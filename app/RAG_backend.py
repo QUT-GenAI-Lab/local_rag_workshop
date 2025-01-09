@@ -22,7 +22,6 @@ def create_injection_prompt(
     creates injection prompt based on input msg and query return.
     """
     collection = client.get_collection(db_name)
-    # for now, use ONLY INPUT MSG as query. Can change this to whole chain, potentially, but will do that later
     query = input_msg
     results = collection.query(query_texts=[input_msg], n_results=num_return)
 

@@ -368,11 +368,6 @@ if st.session_state.initialisation == False:
             st.session_state.current_chat = None  # temporary catchall for if you're deleting a chat wiht the same db you're deleting
             st.rerun()
 
-    # Initial chat creation dialog
-    # if len(st.session_state.all_chat_histories) == 0:
-    #     create_new_chat_hist()
-    # removed for now as it's causing issues with dialogue boxes and st.rerun()
-
     # Sidebar with chat management in expander
     with st.sidebar:
         st.title("llm chat demo")

@@ -21,14 +21,10 @@ if not GUI_DIR:
 if __name__ == "__main__":
     # Force streamlit to use the proper CLI args
     sys.argv = [
-        "streamlit",
-        "run",
-        GUI_DIR,
-        "--global.developmentMode",
-        "false",
-        "--server.enableCORS",
-        "true",
-        "--server.enableXsrfProtection",
-        "true",
+        "streamlit", "run", GUI_DIR,
+        #flags
+        "--global.developmentMode", "false",
+        "--server.enableCORS", "true",
+        "--server.enableXsrfProtection", "true",
     ]
     main()

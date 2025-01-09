@@ -73,8 +73,8 @@ def make_db_from_pdf(
     function which creates a db from pdf.
 
     inputs:
-        - pdf_dir: str - directory where pdf can be read from (NOTE: probably needs to be refactored to allow for arbitrary dir strings????? or maybe I'll do that with a drag-drop functionality which returns the string based on OS???????) not sure
-        - db_name: str - name of db (really just name of collection). Maybe I should put a check here which checks if db name already exists? Or maybe I chuck it outside this func
+        - pdf_dir: str - directory where pdf can be read from
+        - db_name: str - name of db (really just name of collection)
         - split_length: int - length of each chunk to be used in injection/embedding
 
     outputs:
@@ -119,11 +119,6 @@ def make_db_from_csv(csv_dir, embedding_col: str, db_name: str):
 
     outputs:
         - collection: returns ChromaDB collection that was just created.
-
-    TO DO:
-        - make this robust to adding multiple metadatas, allow us to specify which column is returned from embedding etc.
-        - automatically split embedding dim into 128 words? Logic which also splits injection col????? man I dunno
-
     """
     # ingest and prepare data
     init_df = pd.read_csv(csv_dir)
