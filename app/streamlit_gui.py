@@ -1,7 +1,13 @@
 import streamlit as st
 
 with st.spinner("loading ollama backend..."):
-    from llama_engine import *  # llama_chat_gen_streamed
+    from llama_engine import (
+        check_ollama_install,
+        check_and_serve_ollama,
+        ollama_list_and_install_models,
+        ollama_load_model,
+        llama_chat_gen_streamed
+    )
 
 # initialise base directories
 from os import path
