@@ -19,14 +19,14 @@ def create_executable():
         '--noconfirm',        # rewrite build and dist folders automatically without confirmation (your fault for deleting your shit brus).
         
         # Add data files and directories
-        # '--add-data', f'chromadbs{os.pathsep}chromadbs',
-        # '--add-data', f'chats{os.pathsep}chats',
+        '--add-data', f'chromadbs{os.pathsep}chromadbs',
+        '--add-data', f'chats{os.pathsep}chats',
         
         # Add Python source files
-        # '--add-data', f'streamlit_gui.py{os.pathsep}.',
-        # '--add-data', f'chromadb_engine.py{os.pathsep}.',
-        # '--add-data', f'llama_engine.py{os.pathsep}.',
-        # '--add-data', f'RAG_backend.py{os.pathsep}.',
+        '--add-data', f'streamlit_gui.py{os.pathsep}.',
+        '--add-data', f'chromadb_engine.py{os.pathsep}.',
+        '--add-data', f'llama_engine.py{os.pathsep}.',
+        '--add-data', f'RAG_backend.py{os.pathsep}.',
         
         # Hidden imports for potential dependencies
         '--hidden-import','sklearn.tree._partitioner',
@@ -58,16 +58,16 @@ def create_executable():
         
         # List of files to copy
         files_to_copy = [
-            'streamlit_gui.py',
-            'chromadb_engine.py',
-            'llama_engine.py',
-            'RAG_backend.py'
+            # 'streamlit_gui.py',
+            # 'chromadb_engine.py',
+            # 'llama_engine.py',
+            # 'RAG_backend.py'
         ]
 
         # list of dirs to copy
         dirs_to_copy = [
-            'chromadbs',
-            'chats',
+            # 'chromadbs',
+            # 'chats',
         ]
         
         for file in files_to_copy:
