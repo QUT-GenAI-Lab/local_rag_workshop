@@ -424,11 +424,11 @@ if st.session_state.initialisation == False:
                 "Maximum distance of object from query", 0.5, 2.5, 2.0, 0.1
             )
 
-        if st.button("Create a new Vector Database"):
+        if st.button("Create a new Vector Database", use_container_width = True):
             # st.rerun()
             create_new_vectordb()
 
-        if st.button("Explore existing Databases"):
+        if st.button("Explore existing Databases", use_container_width = True):
             chromadb_explore()
 
         with st.expander("DB management", expanded=False):
