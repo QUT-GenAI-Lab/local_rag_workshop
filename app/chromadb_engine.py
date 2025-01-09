@@ -13,7 +13,7 @@ BASE_DIR = path.abspath(path.dirname(__file__))
 DB_DIR = os.path.join(BASE_DIR, "chromadbs")
 
 #load persistent dir
-client = chromadb.PersistentClient(path="chromadbs")
+client = chromadb.PersistentClient(path=DB_DIR)
 
 # generic funcs
 
