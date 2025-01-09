@@ -260,11 +260,3 @@ def visualise_embeddings_3d(collection):
 
 def delete_collection(collection_name):
     client.delete_collection(collection_name)
-
-### TO DO:
-"""
-TO DO:
-    - abstracting function that allows you to delete db?
-    - (note: I will probably not expose the funcitonality of updating a db.)
-    - idk
-"""

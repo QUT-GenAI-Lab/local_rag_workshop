@@ -75,9 +75,6 @@ if st.session_state.initialisation == False:
     if "is_generating" not in st.session_state:
         st.session_state.is_generating = False
     
-    # if "new_chat_name" not in st.session_state:
-    #     st.session_state.new_chat_name = ""
-    
     if "use_rag" not in st.session_state:
         st.session_state.use_rag = True
     
