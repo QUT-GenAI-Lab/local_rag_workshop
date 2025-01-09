@@ -9,6 +9,9 @@ from chromadb_engine import (client,
 from llama_engine import llama_chat_gen
 
 def create_injection_prompt(db_name, input_msg, num_return, max_dist:float=None, inject_col:str=None, inject_template: str = "{INJECT_TEXT}, {USER_MESSAGE}"):
+    '''
+    creates injection prompt based on input msg and query return.
+    '''
     collection = client.get_collection(db_name)
     # for now, use ONLY INPUT MSG as query. Can change this to whole chain, potentially, but will do that later 
     query = input_msg

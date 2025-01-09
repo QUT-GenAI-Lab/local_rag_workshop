@@ -1,5 +1,7 @@
 import sys
 from streamlit.web.cli import main
+
+# search for streamlit_gui.py (have to do this because run contexts are different across OSes
 from os import path
 import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))

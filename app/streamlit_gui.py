@@ -18,7 +18,7 @@ if "ollama_model" not in st.session_state:
 
 @st.dialog("Initialize Ollama engine")
 def initialise_ollama():
-    with st.spinner("loading ollama (this may take a while on first run - we'll need to download a default model!..."):
+    with st.spinner("loading ollama (this may take a while on first run - we'll need to download a default model!)..."):
         if not check_ollama_install():
             st.error("You don't have ollama installed! Install from [here](https://ollama.com/) and restart")
         else:

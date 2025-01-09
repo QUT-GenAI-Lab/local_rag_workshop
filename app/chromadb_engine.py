@@ -18,6 +18,9 @@ client = chromadb.PersistentClient(path=DB_DIR)
 # generic funcs
 
 def clean_utf8(input_str):
+    '''
+    function to clean strings to UTF-8 compatible encoding.
+    '''
     input_str = bytes(input_str, 'utf-8').decode('utf-8', 'ignore')
     return input_str
 
@@ -183,10 +186,16 @@ def make_db_from_txt(txt, db_name: str, split_length: int = 128, ):
     return collection
 
 def list_all_collections():
+    '''
+    lists all collections currently available on chromadb
+    '''
     collections_list = [x.name for x in client.list_collections()]
     return collections_list
 
 def create_df_from_chromadb_get(data):
+    '''
+    turns returned collection.get() into a pd dataframe.
+    '''
     documents_df = pd.DataFrame(data['documents'], columns=['Documents that were embedded'])
     if not all(x==None for x in data['metadatas']):
         metadatas_df = pd.DataFrame(data['metadatas'])
@@ -194,6 +203,9 @@ def create_df_from_chromadb_get(data):
     return documents_df
 
 def create_df_from_chromadb_query(results):
+    '''
+    turns returned collection.query() into a pd dataframe.
+    '''
     results_df = pd.DataFrame({
         'Document': results['documents'][0],
         'Distance': results['distances'][0] if 'distances' in results else ['N/A'] * len(results['documents'][0])
@@ -259,4 +271,7 @@ def visualise_embeddings_3d(collection):
     return fig
 
 def delete_collection(collection_name):
+    '''
+    delete chromadb collection
+    '''
     client.delete_collection(collection_name)
