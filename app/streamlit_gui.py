@@ -376,7 +376,7 @@ if st.session_state.initialisation == False:
 
     # Sidebar with chat management in expander
     with st.sidebar:
-        st.title("llm chat demo")
+        st.title("RAGChat")
 
         st.button(
             "RAG: " + ("ON" if st.session_state.use_rag else "OFF"),
