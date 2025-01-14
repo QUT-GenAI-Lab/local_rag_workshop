@@ -18,6 +18,33 @@ client = chromadb.PersistentClient(path=DB_DIR)
 
 # generic funcs
 
+def batch_upsert(db_name, documents, ids, metadatas = None,):
+    """
+    function to batch upsert into chromadb (currently has a limit of 5461 docs per upsert, for some reason)
+    """
+
+    # create or upsert into collection
+    collection = client.get_or_create_collection(name=db_name)
+
+    batch_size = 5000 #somewhat arbitrarily lower than 5461, but I just like a nice round number lol
+
+    documents_batch = [documents[i:i+batch_size] for i in range(0, len(documents), batch_size)]
+    ids_batch = [ids[i:i+batch_size] for i in range(0, len(ids), batch_size)]
+    if metadatas:
+        metadatas_batch = [metadatas[i:i+batch_size] for i in range(0, len(metadatas), batch_size)]
+        for i in range(len(ids_batch)):
+            collection.upsert(documents=documents_batch[i],
+                              metadatas=metadatas_batch[i],
+                              ids=ids_batch[i]
+                             )
+    else:
+        for i in range(len(ids_batch)):
+            collection.upsert(documents=documents_batch[i],
+                                 metadatas=metadatas_batch[i],
+                                 ids=ids_batch[i]
+                                ) 
+
+    return collection
 
 def clean_utf8(input_str):
     """
@@ -100,10 +127,11 @@ def make_db_from_pdf(
     ids = [f"id{num}" for num in range(len(total_splits))]
 
     # create (or upsert into) chromadb
-    collection = client.get_or_create_collection(name=db_name)
+    collection = batch_upsert(db_name, total_splits, ids, metadatas = None)
+    # collection = client.get_or_create_collection(name=db_name)
 
-    # using upsert to overwrite existing
-    collection.upsert(documents=total_splits, ids=ids)
+    # # using upsert to overwrite existing
+    # collection.upsert(documents=total_splits, ids=ids)
 
     return collection
 
@@ -128,11 +156,13 @@ def make_db_from_csv(csv_dir, embedding_col: str, db_name: str):
     metadatas = [init_df.loc[x].to_dict() for x in range(len(init_df))]
     ids = [f"id{num}" for num in range(len(init_df))]
 
-    # create or upsert into collection
-    collection = client.get_or_create_collection(name=db_name)
+    collection = batch_upsert(db_name, documents, ids, metadatas)
 
-    # using upsert to overwrite existing
-    collection.upsert(documents=documents, metadatas=metadatas, ids=ids)
+    # # create or upsert into collection
+    # collection = client.get_or_create_collection(name=db_name)
+
+    # # using upsert to overwrite existing
+    # collection.upsert(documents=documents, metadatas=metadatas, ids=ids)
 
     return collection
 
@@ -158,9 +188,12 @@ def make_db_from_docx(
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
 
-    collection = client.get_or_create_collection(name=db_name)
+    collection = batch_upsert(db_name, split_list, ids, metadatas = None)
 
-    collection.upsert(documents=split_list, ids=ids)
+
+    # collection = client.get_or_create_collection(name=db_name)
+
+    # collection.upsert(documents=split_list, ids=ids)
 
     return collection
 
@@ -189,9 +222,12 @@ def make_db_from_txt(
     split_list = split_texts(text, split_length)
     ids = [f"id{num}" for num in range(len(split_list))]
 
-    collection = client.get_or_create_collection(name=db_name)
+    collection = batch_upsert(db_name, split_list, ids, metadatas = None)
 
-    collection.upsert(documents=split_list, ids=ids)
+
+    # collection = client.get_or_create_collection(name=db_name)
+
+    # collection.upsert(documents=split_list, ids=ids)
 
     return collection
 
