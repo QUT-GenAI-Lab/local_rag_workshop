@@ -128,10 +128,6 @@ def make_db_from_pdf(
 
     # create (or upsert into) chromadb
     collection = batch_upsert(db_name, total_splits, ids, metadatas = None)
-    # collection = client.get_or_create_collection(name=db_name)
-
-    # # using upsert to overwrite existing
-    # collection.upsert(documents=total_splits, ids=ids)
 
     return collection
 
@@ -158,12 +154,6 @@ def make_db_from_csv(csv_dir, embedding_col: str, db_name: str):
 
     collection = batch_upsert(db_name, documents, ids, metadatas)
 
-    # # create or upsert into collection
-    # collection = client.get_or_create_collection(name=db_name)
-
-    # # using upsert to overwrite existing
-    # collection.upsert(documents=documents, metadatas=metadatas, ids=ids)
-
     return collection
 
 
@@ -189,11 +179,6 @@ def make_db_from_docx(
     ids = [f"id{num}" for num in range(len(split_list))]
 
     collection = batch_upsert(db_name, split_list, ids, metadatas = None)
-
-
-    # collection = client.get_or_create_collection(name=db_name)
-
-    # collection.upsert(documents=split_list, ids=ids)
 
     return collection
 
@@ -223,11 +208,6 @@ def make_db_from_txt(
     ids = [f"id{num}" for num in range(len(split_list))]
 
     collection = batch_upsert(db_name, split_list, ids, metadatas = None)
-
-
-    # collection = client.get_or_create_collection(name=db_name)
-
-    # collection.upsert(documents=split_list, ids=ids)
 
     return collection
 
