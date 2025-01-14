@@ -238,9 +238,18 @@ if st.session_state.initialisation == False:
     @st.dialog("Create a new chat history")
     def create_new_chat_hist():
         name = st.text_input("Put your chat name here!", max_chars=156)
-        system_prompt = st.text_area("Put your system prompt here!", max_chars=750)
+        system_prompt = st.text_area("Put your system prompt here!", 
+                                     value="You are a helpful chatbot assistant.",
+                                     max_chars=750)
         injection_template = st.text_area(
             "Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!",
+            value="""Documents to refer to:
+
+{INJECT_TEXT}
+
+Message to respond to:
+
+{USER_MESSAGE}""",
             max_chars=750,
         )
         selected_db = st.selectbox(
