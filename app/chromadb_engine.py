@@ -30,7 +30,7 @@ def batch_upsert(db_name, documents, ids, metadatas = None,):
 
     documents_batch = [documents[i:i+batch_size] for i in range(0, len(documents), batch_size)]
     ids_batch = [ids[i:i+batch_size] for i in range(0, len(ids), batch_size)]
-    if metadatas:
+    if metadatas is not None:
         metadatas_batch = [metadatas[i:i+batch_size] for i in range(0, len(metadatas), batch_size)]
         for i in range(len(ids_batch)):
             collection.upsert(documents=documents_batch[i],
