@@ -238,35 +238,40 @@ if st.session_state.initialisation == False:
     @st.dialog("Create a new chat history")
     def create_new_chat_hist():
         name = st.text_input("Put your chat name here!", max_chars=156)
-        system_prompt = st.text_area("Put your system prompt here!", 
-                                     value="You are a helpful chatbot assistant.",
-                                     max_chars=750)
-        injection_template = st.text_area(
-            "Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!",
-            value="""Documents to refer to:
-
-{INJECT_TEXT}
-
-Message to respond to:
-
-{USER_MESSAGE}""",
-            max_chars=750,
-        )
         selected_db = st.selectbox(
             "select injection database",
             options=list_all_collections(),
             index=0,  # defaults to first example injection database
         )
-        # checking if there are metadatas/"columns" that have options for injection, making selectbox if so
-        quick_sample = client.get_collection(selected_db).get(limit=5)
-        if not all(x == None for x in quick_sample["metadatas"]):
-            injection_col = st.selectbox(
-                "select column for injection into RAG",
-                options=list(
-                    quick_sample["metadatas"][0].keys()
-                ),  # assuming first item in quick_sample has all metadatas, which as of 03/01/2025, is correct
-                index=0,
+        with st.expander("Advanced Options 🤓", expanded = False):
+            system_prompt = st.text_area("Put your system prompt here!", 
+                                         value="You are a helpful chatbot assistant.",
+                                         max_chars=750)
+            injection_template = st.text_area(
+                "Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!",
+                value="""Documents to refer to:
+    
+{INJECT_TEXT}
+
+Message to respond to:
+
+{USER_MESSAGE}""",
+                max_chars=750,
             )
+
+            # checking if there are metadatas/"columns" that have options for injection, making selectbox if so
+            quick_sample = client.get_collection(selected_db).get(limit=5)
+            if not all(x == None for x in quick_sample["metadatas"]):
+                init_list = [None]
+                init_list.extend(list(
+                        quick_sample["metadatas"][0].keys()
+                    )
+                                )# assuming first item in quick_sample has all metadatas, which as of 03/01/2025, is correct
+                injection_col = st.selectbox(
+                    "select column for injection into RAG",
+                    options=init_list,  
+                    index=0, #first item is None, so default doc is used for injection
+                )
 
         if st.button("Create", use_container_width=True):
             # error checking
@@ -541,6 +546,7 @@ Message to respond to:
         save_chat_hist(st.session_state.current_chat)
         st.session_state.is_generating = False
         st.rerun()
+        
     #allow user to delete just the chat history
     if st.session_state.current_chat and len(st.session_state.all_chat_histories[
             st.session_state.current_chat
