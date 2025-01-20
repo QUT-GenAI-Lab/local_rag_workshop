@@ -541,3 +541,15 @@ Message to respond to:
         save_chat_hist(st.session_state.current_chat)
         st.session_state.is_generating = False
         st.rerun()
+    #allow user to delete just the chat history
+    if st.session_state.current_chat and len(st.session_state.all_chat_histories[
+            st.session_state.current_chat
+        ]["normal_hist"])>=1:
+        if st.button("Restart chat 🔄️", use_container_width = True):
+            chat_histories = st.session_state.all_chat_histories[
+                    st.session_state.current_chat
+                ]
+            chat_histories["normal_hist"]=[]
+            chat_histories["RAG_hist"]=[]
+            save_chat_hist(st.session_state.current_chat)
+            st.rerun()
