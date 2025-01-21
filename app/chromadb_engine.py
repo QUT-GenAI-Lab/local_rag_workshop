@@ -7,6 +7,9 @@ import numpy as np
 import plotly.express as px
 from umap.umap_ import UMAP
 
+#fixing chromadb embedding execution issues on Intel mac
+from chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2 import ONNXMiniLM_L6_V2
+
 from os import path
 import os
 
@@ -16,6 +19,9 @@ DB_DIR = os.path.join(BASE_DIR, "chromadbs")
 # load persistent dir
 client = chromadb.PersistentClient(path=DB_DIR)
 
+#fixing chromadb embedding execution issues on Intel mac
+ef = ONNXMiniLM_L6_V2(preferred_providers=["CPUExecutionProvider"])
+
 # generic funcs
 
 def batch_upsert(db_name, documents, ids, metadatas = None,):
@@ -24,7 +30,7 @@ def batch_upsert(db_name, documents, ids, metadatas = None,):
     """
 
     # create or upsert into collection
-    collection = client.get_or_create_collection(name=db_name)
+    collection = client.get_or_create_collection(name=db_name, embedding_function=ef)
 
     batch_size = 5000 #somewhat arbitrarily lower than 5461, but I just like a nice round number lol
 
