@@ -449,13 +449,8 @@ Message to respond to:
             db_to_delete = st.selectbox(
                 "Select DB to delete",
                 options=list_all_collections(),
-                index=(
-                    list(st.session_state.all_chat_histories.keys()).index(
-                        st.session_state.current_chat
-                    )
-                    if st.session_state.current_chat
-                    else 0
-                ),
+                index=None, #quick fix of db errors 
+            ),
             )
             if st.button("DELETE DATABASE! 💀", type="secondary"):
                 delete_database_confirmation(db_to_delete)
