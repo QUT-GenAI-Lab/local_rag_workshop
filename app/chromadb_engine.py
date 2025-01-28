@@ -19,6 +19,9 @@ DB_DIR = os.path.join(BASE_DIR, "chromadbs")
 # load persistent dir
 client = chromadb.PersistentClient(path=DB_DIR)
 
+#load onnxminilm_l6_v2 locally
+ONNXMiniLM_L6_V2.DOWNLOAD_PATH=os.path.join(BASE_DIR, "all-MiniLM-L6-v2")
+
 #fixing chromadb embedding execution issues on Intel mac
 ef = ONNXMiniLM_L6_V2(preferred_providers=["CPUExecutionProvider"])
 
