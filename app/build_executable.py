@@ -19,6 +19,7 @@ def create_executable():
         # Add data files and directories
         "--add-data", f"chromadbs{os.pathsep}chromadbs",
         "--add-data", f"chats{os.pathsep}chats",
+        "--add-data", f"all-MiniLM-L6-v2{os.pathsep}all-MiniLM-L6-v2",
         # Add Python source files
         "--add-data", f"streamlit_gui.py{os.pathsep}.",
         "--add-data", f"chromadb_engine.py{os.pathsep}.",
