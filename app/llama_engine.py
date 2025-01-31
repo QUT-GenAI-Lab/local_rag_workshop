@@ -2,7 +2,7 @@ import ollama
 from ollama import chat, ChatResponse
 import subprocess
 import requests
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, ConnectionError
 import os
 from os import path
 
@@ -25,8 +25,8 @@ def check_and_serve_ollama():
     try:
         requests.get('http://localhost:11434').raise_for_status()
         return
-    except RequestException:
-        subprocess.run('ollama serve', shell=True)
+    except (RequestException, ConnectionError):
+        subprocess.Popen('ollama serve', shell=True)
         return
 
 def ollama_list_and_install_models():
