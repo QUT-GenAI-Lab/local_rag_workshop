@@ -71,8 +71,8 @@ if st.session_state.initialisation == False:
         import pickle
         import re
 
-    def load_chromadb():
-        collection = client.get_collection("us_constitution")
+    def load_chromadb(): #NOTE: deactivated_for_now
+        collection = client.get_collection("CatcherInTheRye")
         collection.query(query_texts=["test"], n_results=1)
         st.session_state.chromadb_loaded = True
 
@@ -105,7 +105,8 @@ if st.session_state.initialisation == False:
         st.session_state.chromadb_loaded = False
 
     if not st.session_state.chromadb_loaded:
-        load_chromadb()
+        # load_chromadb() <- disabling for now - don't think it's necessary
+        st.session_state.chromadb_loaded=True
 
     def save_chat_hist(chat_name):
         chat_to_save = st.session_state.all_chat_histories[chat_name]
@@ -550,7 +551,11 @@ Message to respond to:
             chat_histories = st.session_state.all_chat_histories[
                     st.session_state.current_chat
                 ]
-            chat_histories["normal_hist"]=[]
-            chat_histories["RAG_hist"]=[]
+            chat_histories["normal_hist"]=[
+                        {"role": "system", "content": chat_histories["system_prompt"]},
+                    ]
+            chat_histories["RAG_hist"]=[
+                        {"role": "system", "content": chat_histories["system_prompt"]},
+                    ]
             save_chat_hist(st.session_state.current_chat)
             st.rerun()
