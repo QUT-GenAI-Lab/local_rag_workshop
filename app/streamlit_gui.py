@@ -13,6 +13,9 @@ with st.spinner("loading ollama backend..."):
 from os import path
 import os
 
+#only for errors
+import chromadb
+
 BASE_DIR = path.abspath(path.dirname(__file__))
 CHAT_DIR = os.path.join(BASE_DIR, "chats")
 
@@ -71,11 +74,6 @@ if st.session_state.initialisation == False:
         import pickle
         import re
 
-    def load_chromadb():
-        collection = client.get_collection("us_constitution")
-        collection.query(query_texts=["test"], n_results=1)
-        st.session_state.chromadb_loaded = True
-
     def load_chat_histories():
         chathist_list = [file for file in os.listdir(CHAT_DIR) if ".pickle" in file]
         chathist_returndict = {}
@@ -105,7 +103,8 @@ if st.session_state.initialisation == False:
         st.session_state.chromadb_loaded = False
 
     if not st.session_state.chromadb_loaded:
-        load_chromadb()
+        # load_chromadb() <- disabling for now - don't think it's necessary
+        st.session_state.chromadb_loaded=True
 
     def save_chat_hist(chat_name):
         chat_to_save = st.session_state.all_chat_histories[chat_name]
@@ -237,146 +236,156 @@ if st.session_state.initialisation == False:
 
     @st.dialog("Create a new chat history")
     def create_new_chat_hist():
-        name = st.text_input("Put your chat name here!", max_chars=156)
-        selected_db = st.selectbox(
-            "select injection database",
-            options=list_all_collections(),
-            index=0,  # defaults to first example injection database
-        )
-        with st.expander("Advanced Options 🤓", expanded = False):
-            system_prompt = st.text_area("Put your system prompt here!", 
-                                         value="You are a helpful chatbot assistant.",
-                                         max_chars=750)
-            injection_template = st.text_area(
-                "Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!",
-                value="""Documents to refer to:
+        try:
+            name = st.text_input("Put your chat name here!", max_chars=156)
+            selected_db = st.selectbox(
+                "select injection database",
+                options=list_all_collections(),
+                index=0,  # defaults to first example injection database
+            )
+            with st.expander("Advanced Options 🤓", expanded = False):
+                system_prompt = st.text_area("Put your system prompt here!", 
+                                             value="You are a helpful chatbot assistant.",
+                                             max_chars=750)
+                injection_template = st.text_area(
+                    "Put your injection template here! REMEMBER, MUST have {INJECT_TEXT} and {USER_MESSAGE} strings!",
+                    value="""Documents to refer to:
     
 {INJECT_TEXT}
 
 Message to respond to:
 
 {USER_MESSAGE}""",
-                max_chars=750,
-            )
-
-            # checking if there are metadatas/"columns" that have options for injection, making selectbox if so
-            quick_sample = client.get_collection(selected_db).get(limit=5)
-            if not all(x == None for x in quick_sample["metadatas"]):
-                init_list = [None]
-                init_list.extend(list(
-                        quick_sample["metadatas"][0].keys()
+                    max_chars=750,
+                )
+    
+                # checking if there are metadatas/"columns" that have options for injection, making selectbox if so
+                quick_sample = client.get_collection(selected_db).get(limit=5)
+                if not all(x == None for x in quick_sample["metadatas"]):
+                    init_list = [None]
+                    init_list.extend(list(
+                            quick_sample["metadatas"][0].keys()
+                        )
+                                    )# assuming first item in quick_sample has all metadatas, which as of 03/01/2025, is correct
+                    injection_col = st.selectbox(
+                        "select column for injection into RAG",
+                        options=init_list,  
+                        index=0, #first item is None, so default doc is used for injection
                     )
-                                )# assuming first item in quick_sample has all metadatas, which as of 03/01/2025, is correct
-                injection_col = st.selectbox(
-                    "select column for injection into RAG",
-                    options=init_list,  
-                    index=0, #first item is None, so default doc is used for injection
-                )
-
-        if st.button("Create", use_container_width=True):
-            # error checking
-            if not re.match("^[a-zA-Z0-9_-]*$", name):
-                st.error(
-                    "Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters"
-                )
-            elif name in list(st.session_state.all_chat_histories.keys()):
-                st.error(
-                    "Chat history with that name already exists! Choose a different chat name."
-                )
-            elif (
-                "{INJECT_TEXT}" not in injection_template
-                or "{USER_MESSAGE}" not in injection_template
-            ):
-                st.error(
-                    "Injection template format invalid! Remember, put {INJECT_TEXT} where you'd like your RAG results to be injected, and {USER_MESSAGE} where you'd like your input message to be returned. Remember to include the curly brackets!"
-                )
-            else:
-                if all([name, system_prompt, injection_template, selected_db]):
-                    init_messages = [
-                        {"role": "system", "content": system_prompt},
-                        # {"role": "assistant", "content": "Hi there, how can I help you today?"}
-                    ]
-                    st.session_state.all_chat_histories[name] = {
-                        "normal_hist": init_messages.copy(),
-                        "RAG_hist": init_messages.copy(),
-                        "system_prompt": system_prompt,
-                        "injection_template": injection_template,
-                        "selected_db": selected_db,
-                        "injection_col": (
-                            None if "injection_col" not in locals() else injection_col
-                        ),  # check if injection_col var exists
-                    }
-                    st.session_state.current_chat = name
-                    # save chat history now:
-                    save_chat_hist(name)
-                    st.rerun()
-
-                else:  # catchall error (so janky - I'm so sorry)
+    
+            if st.button("Create", use_container_width=True):
+                # error checking
+                if not re.match("^[a-zA-Z0-9_-]*$", name):
                     st.error(
-                        "Missing chat name, system prompt, injection template, and/or injection database! Take a closer look at your selections."
+                        "Chat history name contains characters other than alphanumeric, underscores, and/or hyphens. Please change the name to only include the aforementioned characters"
+                    )
+                elif name in list(st.session_state.all_chat_histories.keys()):
+                    st.error(
+                        "Chat history with that name already exists! Choose a different chat name."
+                    )
+                elif (
+                    "{INJECT_TEXT}" not in injection_template
+                    or "{USER_MESSAGE}" not in injection_template
+                ):
+                    st.error(
+                        "Injection template format invalid! Remember, put {INJECT_TEXT} where you'd like your RAG results to be injected, and {USER_MESSAGE} where you'd like your input message to be returned. Remember to include the curly brackets!"
+                    )
+                else:
+                    if all([name, system_prompt, injection_template, selected_db]):
+                        init_messages = [
+                            {"role": "system", "content": system_prompt},
+                            # {"role": "assistant", "content": "Hi there, how can I help you today?"}
+                        ]
+                        st.session_state.all_chat_histories[name] = {
+                            "normal_hist": init_messages.copy(),
+                            "RAG_hist": init_messages.copy(),
+                            "system_prompt": system_prompt,
+                            "injection_template": injection_template,
+                            "selected_db": selected_db,
+                            "injection_col": (
+                                None if "injection_col" not in locals() else injection_col
+                            ),  # check if injection_col var exists
+                        }
+                        st.session_state.current_chat = name
+                        # save chat history now:
+                        save_chat_hist(name)
+                        st.rerun()
+    
+                    else:  # catchall error (so janky - I'm so sorry)
+                        st.error(
+                            "Missing chat name, system prompt, injection template, and/or injection database! Take a closer look at your selections."
+                        )
+        except chromadb.errors.InvalidCollectionException:
+            st.error(
+                    "You don't have any databases! Create a database first!"
                     )
 
     @st.dialog("Explore your ChromaDB databases", width="large")
     def chromadb_explore():
-        default_db = st.session_state.all_chat_histories[st.session_state.current_chat][
-            "selected_db"
-        ]
-        default_index = list_all_collections().index(default_db)
-        selected_db = st.selectbox(
-            "Collection:",
-            options=list_all_collections(),
-            index=default_index,
-            key="collection_selector",
-        )
-
-        tab1, tab2 = st.tabs(["Query", "Visualize"])
-
-        with tab1:
-            chromadb_col1, chromadb_col2 = st.columns([6, 1])
-
-            with chromadb_col1:
-                query_text = st.text_input("Query:", key="query_text")
-            with chromadb_col2:
-                n_results = st.number_input(
-                    "No. Results:", min_value=1, max_value=50, value=5, step=1
-                )
-
-            # Initialize collection
-            collection = client.get_collection(selected_db)
-
-            # Display either query results or all data based on whether there's a query
-            if query_text:
-                results = collection.query(
-                    query_texts=[query_text], n_results=n_results
-                )
-
-                # Display results with similarity scores
-                if results["documents"] and results["documents"][0]:
-                    st.dataframe(
-                        create_df_from_chromadb_query(results), use_container_width=True
+        try:
+            default_db = st.session_state.all_chat_histories[st.session_state.current_chat][
+                "selected_db"
+            ] if st.session_state.current_chat is not None else 0
+            default_index = list_all_collections().index(default_db) if default_db != 0 else 0
+            selected_db = st.selectbox(
+                "Collection:",
+                options=list_all_collections(),
+                index=default_index,
+                key="collection_selector",
+            )
+    
+            tab1, tab2 = st.tabs(["Query", "Visualize"])
+    
+            with tab1:
+                chromadb_col1, chromadb_col2 = st.columns([6, 1])
+    
+                with chromadb_col1:
+                    query_text = st.text_input("Query:", key="query_text")
+                with chromadb_col2:
+                    n_results = st.number_input(
+                        "No. Results:", min_value=1, max_value=50, value=5, step=1
                     )
+    
+                # Initialize collection
+                collection = client.get_collection(selected_db)
+    
+                # Display either query results or all data based on whether there's a query
+                if query_text:
+                    results = collection.query(
+                        query_texts=[query_text], n_results=n_results
+                    )
+    
+                    # Display results with similarity scores
+                    if results["documents"] and results["documents"][0]:
+                        st.dataframe(
+                            create_df_from_chromadb_query(results), use_container_width=True
+                        )
+                    else:
+                        st.write("No results found")
                 else:
-                    st.write("No results found")
-            else:
-                # Show all documents if no query
-                data = collection.get()
-                st.dataframe(
-                    create_df_from_chromadb_get(data), use_container_width=True
-                )
-
-            collection_count = collection.count()
-            st.write(f"Total documents: {collection_count}")
-
-        with tab2:
-            st.subheader("3D Embedding Visualization")
-            st.markdown("Explore the embedding space of your vector database!")
-            st.info("Drag to rotate, scroll to zoom, double-click to reset view")
-            with st.spinner("generating 3D UMAP of embeddings..."):
-                try:
-                    fig = visualise_embeddings_3d(collection)
-                    st.plotly_chart(fig, use_container_width=True)
-                except Exception as e:
-                    st.error(f"Unable to visualize collection: {str(e)}")
+                    # Show all documents if no query
+                    data = collection.get()
+                    st.dataframe(
+                        create_df_from_chromadb_get(data), use_container_width=True
+                    )
+    
+                collection_count = collection.count()
+                st.write(f"Total documents: {collection_count}")
+    
+            with tab2:
+                st.subheader("3D Embedding Visualization")
+                st.markdown("Explore the embedding space of your vector database!")
+                st.info("Drag to rotate, scroll to zoom, double-click to reset view")
+                with st.spinner("generating 3D UMAP of embeddings..."):
+                    try:
+                        fig = visualise_embeddings_3d(collection)
+                        st.plotly_chart(fig, use_container_width=True)
+                    except Exception as e:
+                        st.error(f"Unable to visualize collection: {str(e)}")
+        except chromadb.errors.InvalidCollectionException:
+            st.error(
+                    "You don't have any databases! Create a database first!"
+                    )
 
     @st.dialog("Are you sure you want to delete this database?")
     def delete_database_confirmation(collection_name):
@@ -449,14 +458,9 @@ Message to respond to:
             db_to_delete = st.selectbox(
                 "Select DB to delete",
                 options=list_all_collections(),
-                index=(
-                    list(st.session_state.all_chat_histories.keys()).index(
-                        st.session_state.current_chat
-                    )
-                    if st.session_state.current_chat
-                    else 0
-                ),
+                index=None, #quick fix of db errors 
             )
+            
             if st.button("DELETE DATABASE! 💀", type="secondary"):
                 delete_database_confirmation(db_to_delete)
 
@@ -550,12 +554,16 @@ Message to respond to:
     #allow user to delete just the chat history
     if st.session_state.current_chat and len(st.session_state.all_chat_histories[
             st.session_state.current_chat
-        ]["normal_hist"])>=1:
+        ]["normal_hist"])>=2:
         if st.button("Restart chat 🔄️", use_container_width = True):
             chat_histories = st.session_state.all_chat_histories[
                     st.session_state.current_chat
                 ]
-            chat_histories["normal_hist"]=[]
-            chat_histories["RAG_hist"]=[]
+            chat_histories["normal_hist"]=[
+                        {"role": "system", "content": chat_histories["system_prompt"]},
+                    ]
+            chat_histories["RAG_hist"]=[
+                        {"role": "system", "content": chat_histories["system_prompt"]},
+                    ]
             save_chat_hist(st.session_state.current_chat)
             st.rerun()

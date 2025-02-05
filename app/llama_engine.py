@@ -2,7 +2,11 @@ import ollama
 from ollama import chat, ChatResponse
 import subprocess
 import requests
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, ConnectionError
+import os
+from os import path
+
+BASE_DIR = path.abspath(path.dirname(__file__))
 
 def check_ollama_install():
     '''
@@ -21,8 +25,8 @@ def check_and_serve_ollama():
     try:
         requests.get('http://localhost:11434').raise_for_status()
         return
-    except RequestException:
-        subprocess.run('ollama serve', shell=True)
+    except (RequestException, ConnectionError):
+        subprocess.Popen('ollama serve', shell=True)
         return
 
 def ollama_list_and_install_models():
@@ -31,7 +35,8 @@ def ollama_list_and_install_models():
     '''
     model_list = ollama.list()['models']
     if not model_list: #if list is empty, install llama3.2 model as default
-        subprocess.run('ollama pull llama3.2', shell=True)
+        subprocess.run('ollama create llama3.2 -f ./Modelfile', shell=True, cwd=BASE_DIR)
+
     return [x['model'] for x in ollama.list()['models']]
 
 def ollama_load_model(model_str):
