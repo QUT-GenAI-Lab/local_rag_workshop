@@ -27,9 +27,4 @@ Currently, 'compilation' of functioning executables are confirmed on:
 - Windows x86/64
 - Linux x86/64
 - MacOS ARM
-
-At a stretch, we may still add/confirm compatibility with:
 - MacOS x86/64
-- Linux ARM
-
-(soz to all Windows ARM early adopters :) )
