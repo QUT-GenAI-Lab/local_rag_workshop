@@ -1,5 +1,6 @@
 # Local RAG workshop app
-This is an app built for the local RAG workshop being run by the [Queensland University of Technology GenAI lab](https://research.qut.edu.au/genailab/).
+This is an app built for the local Retrieval Augmented Generation (RAG) workshop being run by the [Queensland University of Technology GenAI lab](https://research.qut.edu.au/genailab/).
+
 
 This is a barebones app that allows non-technical users to build their own RAG-enabled LLM chats. The RAG backend is ChromaDB (using their default all-MiniLM-L6-v2 embedding model), whereas the LLM chat backend is enabled by a separate, external install of Ollama.
 
