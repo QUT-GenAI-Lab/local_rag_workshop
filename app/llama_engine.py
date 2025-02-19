@@ -57,7 +57,10 @@ def ollama_list_and_install_models():
     '''
     model_list = ollama.list()['models']
     if not model_list: #if list is empty, install llama3.2 model as default
-        subprocess.run('ollama create llama3.2 -f ./Modelfile', shell=True, cwd=BASE_DIR)
+        if os.path.isfile(os.path.join(BASE_DIR, 'Modelfile')): #if Modelfile, and assumedly accompanying model exists, install from local
+            subprocess.run('ollama create llama3.2 -f ./Modelfile', shell=True, cwd=BASE_DIR)
+        else: #if Modelfile + local file of model does not exist, then download from ollama
+            subprocess.run('ollama pull llama3.2', shell=True)
 
     return [x['model'] for x in ollama.list()['models']]
 
