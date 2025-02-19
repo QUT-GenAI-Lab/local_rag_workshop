@@ -40,6 +40,7 @@ import chromadb
 
 BASE_DIR = path.abspath(path.dirname(__file__))
 CHAT_DIR = os.path.join(BASE_DIR, "chats")
+os.makedirs(CHAT_DIR, exist_ok = True) #create chat dir if doesn't exist
 
 # janky way of starting llama chat engine
 if "initialisation" not in st.session_state:
