@@ -1,7 +1,9 @@
 # Local RAG workshop app
-This is an app built for the local RAG workshop being run by QUT's GenAI lab.
+This is an app built for the local RAG workshop being run by the [Queensland University of Technology GenAI lab](https://research.qut.edu.au/genailab/).
 
 This is a barebones app that allows non-technical users to build their own RAG-enabled LLM chats. The RAG backend is ChromaDB (using their default all-MiniLM-L6-v2 embedding model), whereas the LLM chat backend is enabled by a separate, external install of Ollama.
+
+[ *Screenshot of a chat thread in the app* ]
 
 # Features
 - drag-and-drop Vector Database creation for .doc/.docx, .pdf, .txt, and .csv files
@@ -28,8 +30,6 @@ Currently, 'compilation' of functioning executables are confirmed on:
 - Linux x86/64
 - MacOS ARM
 - MacOS x86/64
-
-(soz to all Windows ARM early adopters :) )
 
 # QUICKSTART
 First start up Ollama as a background service, and make sure it's on the same machine (i.e. don't run ollama on a separate docker image to this program)
