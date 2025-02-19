@@ -27,10 +27,7 @@ Currently, 'compilation' of functioning executables are confirmed on:
 - Windows x86/64
 - Linux x86/64
 - MacOS ARM
-
-At a stretch, we may still add/confirm compatibility with:
 - MacOS x86/64
-- Linux ARM
 
 (soz to all Windows ARM early adopters :) )
 
@@ -65,3 +62,4 @@ Give your chat a title (with no spaces or special characters), select the releva
 
 ### License
 We're releasing this software with an open source license (see LICENSE), but if you want to use this for any commercial purpose, contact us to discuss dual-licensing arrangements.
+
