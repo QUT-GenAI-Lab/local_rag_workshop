@@ -1,3 +1,25 @@
+'''
+    RAGChat - a GUI for the quick development of RAG chatbots, used to
+    teach the basic intuitions behind RAG LLMs.
+    
+    Copyright (C) 2025 QUT GenAI Lab
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+    For more information, contact QUT GenAI lab via: genailab@qut.edu.au
+'''
+
 import chromadb
 import pandas as pd
 from pypdf import PdfReader
@@ -15,6 +37,7 @@ import os
 
 BASE_DIR = path.abspath(path.dirname(__file__))
 DB_DIR = os.path.join(BASE_DIR, "chromadbs")
+os.makedirs(DB_DIR, exist_ok = True) #create db dir if doesn't exist
 
 # load persistent dir
 client = chromadb.PersistentClient(path=DB_DIR)

@@ -1,3 +1,25 @@
+'''
+    RAGChat - a GUI for the quick development of RAG chatbots, used to
+    teach the basic intuitions behind RAG LLMs.
+    
+    Copyright (C) 2025 QUT GenAI Lab
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+    For more information, contact QUT GenAI lab via: genailab@qut.edu.au
+'''
+
 import ollama
 from ollama import chat, ChatResponse
 import subprocess
@@ -35,7 +57,10 @@ def ollama_list_and_install_models():
     '''
     model_list = ollama.list()['models']
     if not model_list: #if list is empty, install llama3.2 model as default
-        subprocess.run('ollama create llama3.2 -f ./Modelfile', shell=True, cwd=BASE_DIR)
+        if os.path.isfile(os.path.join(BASE_DIR, 'Modelfile')): #if Modelfile, and assumedly accompanying model exists, install from local
+            subprocess.run('ollama create llama3.2 -f ./Modelfile', shell=True, cwd=BASE_DIR)
+        else: #if Modelfile + local file of model does not exist, then download from ollama
+            subprocess.run('ollama pull llama3.2', shell=True)
 
     return [x['model'] for x in ollama.list()['models']]
 
