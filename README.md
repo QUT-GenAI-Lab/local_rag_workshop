@@ -2,9 +2,9 @@
 This is an app built for the local Retrieval Augmented Generation (RAG) workshop being run by the [Queensland University of Technology GenAI lab](https://research.qut.edu.au/genailab/).
 
 
-This is a barebones app that allows non-technical users to build their own RAG-enabled LLM chats. The RAG backend is ChromaDB (using their default all-MiniLM-L6-v2 embedding model), whereas the LLM chat backend is enabled by a separate, external install of Ollama.
+This is a barebones app that allows non-technical users to build their own RAG-enabled LLM chats. The RAG backend is ChromaDB (using their default all-MiniLM-L6-v2 embedding model), whereas the LLM chat backend is enabled by a separate, external install of [Ollama](https://ollama.com/).
 
-[ *Screenshot of a chat thread in the app* ]
+![RAGChat example screenshot](imgs/chat_screenshot.png)
 
 # Features
 - drag-and-drop Vector Database creation for .doc/.docx, .pdf, .txt, and .csv files
@@ -23,7 +23,7 @@ Currently, if you know python (which if you're on github, I'm imagining you do),
 To 'compile' into an executable file for the OS+instruction set you're currently running on, navigate to `/app` and run `python3 build_executable.py`, which will execute the relevant PyInstaller command to build the app into a portable executable file. The output will be in `/app/dist/run`, which is a directory which will contain the executable `run` file, as well as an `_internal` directory for relevant packages and other stuff. Moving the `/run' folder around will allow you to run the RAG GUI on whatever computer has an Ollama install!
 
 ### Pre-reqs for running the app
-- Ollama installed
+- [Ollama](https://ollama.com/) installed
 
 ## Compatibility
 Currently, 'compilation' of functioning executables are confirmed on:
@@ -49,7 +49,7 @@ To create a new chat with a new vector database, we first start by clicking “C
 
 ![create vectordb](imgs/create_vectordb.png)
 
-You are able to upload *ONE* file here that will then be embedded. The file must be either a .pdf, .txt, .doc/.docx or .csv. Your DB name must also have no spaces or special characters (sorry!).
+You are able to upload **ONE** file here that will then be embedded. The file must be either a .pdf, .txt, .doc/.docx or .csv. Your DB name must also have no spaces or special characters (sorry!).
 
 (i.e. – if you want to upload multiple files into the database, conglomerate them into a single file. You can copy and paste everything into a word document for example, or add .csv files together in excel. The world is your oyster here).
 
