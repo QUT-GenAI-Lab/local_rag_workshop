@@ -61,6 +61,15 @@ Once your database is finished embedding, you can go ahead and click "Create New
 
 Give your chat a title (with no spaces or special characters), select the relevant database to use for injection and bob’s your uncle! Go nuts!
 
+## Notes:
+- to keep release sizes small, and to decouple from (some) default models, no Ollama models or ChromaDB models are pre-downloaded. This means that **you must be online while first booting the app and creating your first vector DB. After that, you will be able to use the app fully offline, as default models will be downloaded**.
+- No default chats or dbs are pre-loaded - to create a chat, you must first embed a document into a vector database.
+
+## Known bugs:
+- on MacOS, when changing databases on the Explore DB page, a new streamlit process will spawn. You can ignore this new streamlit process (and close the automatically opened new app window), as it will not affect your existing streamlit process.
+- also on MacOS, there are sometimes issues with app sandboxing, similar to what is described [here](https://stackoverflow.com/questions/44627957/mac-os-file-system-sandbox-blocked-open). Troubleshooting this bug is ongoing.
+
+For any other bugs, please submit an issue [here](https://github.com/QUT-GenAI-Lab/local_rag_workshop/issues).
 ### License
 We're releasing this software with an open source license (see LICENSE), but if you want to use this for any commercial purpose, contact us to discuss dual-licensing arrangements.
 
